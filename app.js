@@ -13,7 +13,6 @@
 
   // ───────── Artwork: one transparent PNG (1091×1442) cut into layers by region ─────────
   const BG = { src: "assets/bg.png", w: 1091, h: 1442 };
-  const GANESHA = { src: "assets/ganesha.png", w: 450, h: 555 };
   const S = 576 / BG.w; // image px → design units (card is 576 units wide)
 
   function sprite(el, img, [x, y, w, h]) {
@@ -21,7 +20,6 @@
     el.style.backgroundSize = `${(img.w / w) * 100}% ${(img.h / h) * 100}%`;
     el.style.backgroundPosition = `${w >= img.w ? 0 : (x / (img.w - w)) * 100}% ${h >= img.h ? 0 : (y / (img.h - h)) * 100}%`;
   }
-  const square = ([x, y, w, h]) => { const s = Math.max(w, h); return [x + w / 2 - s / 2, y + h / 2 - s / 2, s, s]; };
 
   // Corner layers, each lifted to its own depth for parallax.
   const LAYERS = {
@@ -35,37 +33,37 @@
   const ADDRESS = "SDB Grand Palace, No.22, Devaraj Nagar, Agaram Main Road, Selaiyur, Tambaram, Chennai - 600073";
 
   const ITEMS = [
-    { id: "ganesha", kind: "cutout", img: GANESHA, r: [105, 150, 260, 335],
+    { id: "ganesha", kind: "tile", hd: "assets/hd/ganesha.jpg", r: [105, 150, 260, 335],
       ta: "பிள்ளையார்", tl: "Pillaiyar", title: "Lord Ganesha",
       body: "Every Tamil wedding begins with a prayer to Pillaiyar, the remover of obstacles. His mark sits at the top of the invitation so that everything that follows goes smoothly." },
-    { id: "leaves", kind: "cutout", r: LAYERS.tl.r, hs: [["tl", [30, 40, 300, 380]]],
+    { id: "leaves", kind: "tile", hd: "assets/hd/leaves.jpg", r: [0, 0, 440, 575], hs: [["tl", [30, 40, 300, 380]]],
       ta: "வாழை", tl: "Vazhai", title: "Banana leaves",
       body: "Banana trees heavy with fruit are tied at the entrance of the wedding hall. The plant keeps sending up new shoots, so it stands for a family that grows and prospers for generations. The wedding feast is served on its leaf, too." },
-    { id: "marigold", kind: "coin", r: [30, 1185, 115, 115], hs: [["bl", [30, 1185, 115, 115]], ["tr", [1010, 185, 75, 70]]],
+    { id: "marigold", kind: "tile", hd: "assets/hd/marigold.jpg", r: [22, 1178, 130, 130], hs: [["bl", [30, 1185, 115, 115]], ["tr", [1010, 185, 75, 70]]],
       ta: "சாமந்தி", tl: "Saamandhi", title: "Marigold",
       body: "Golden marigolds are strung into the garlands and the mandapam decoration. Their saffron colour is the colour of auspicious beginnings." },
-    { id: "jasmine", kind: "coin", r: [30, 1080, 85, 80], hs: [["bl", [30, 1080, 85, 80]], ["tr", [965, 95, 70, 60]]],
+    { id: "jasmine", kind: "tile", hd: "assets/hd/jasmine.jpg", r: [8, 1055, 130, 130], hs: [["bl", [30, 1080, 85, 80]], ["tr", [965, 95, 70, 60]]],
       ta: "மல்லிகை", tl: "Malligai", title: "Jasmine",
       body: "Fresh Madurai malli is woven into the bride's hair and into the couple's garlands. Its fragrance stands for purity and love, and it fills the hall all day." },
-    { id: "lotus", kind: "coin", r: [120, 1115, 70, 75], hs: [["bl", [120, 1115, 70, 75]], ["tr", [838, 25, 62, 55]]],
+    { id: "lotus", kind: "tile", hd: "assets/hd/lotus.jpg", r: [90, 1088, 130, 130], hs: [["bl", [120, 1115, 70, 75]], ["tr", [838, 25, 62, 55]]],
       ta: "தாமரை மொட்டு", tl: "Thamarai mottu", title: "Lotus buds",
       body: "The lotus rises clean out of muddy water. Its buds stand for grace, new beginnings and the blessings of Goddess Lakshmi on the new home." },
-    { id: "strands", kind: "cutout", r: [1005, 260, 70, 200], hs: [["tr", [1005, 340, 70, 120]]],
+    { id: "strands", kind: "tile", hd: "assets/hd/strands.jpg", r: [961, 260, 130, 200], hs: [["tr", [1005, 340, 70, 120]]],
       ta: "தோரணம்", tl: "Thoranam", title: "Gold strands",
       body: "Strings of gold beads hang from the garland like the festoons over a temple doorway, welcoming everyone into a house of celebration." },
-    { id: "saree", kind: "tile", r: [745, 1040, 280, 230], hs: [["br", [770, 1070, 190, 160]]],
+    { id: "saree", kind: "tile", hd: "assets/hd/saree.jpg", r: [745, 1040, 280, 230], hs: [["br", [770, 1070, 190, 160]]],
       ta: "கூறைப் புடவை", tl: "Koorai pudavai", title: "Silk saree",
       body: "The koorai pudavai is the silk saree given by the groom's family. The bride changes into it for the muhurtham, the moment the thaali is tied. It arrives on a brass tray with the rest of the seer gifts." },
-    { id: "veshti", kind: "tile", r: [925, 1160, 166, 250], hs: [["br", [940, 1225, 145, 165]]],
+    { id: "veshti", kind: "tile", hd: "assets/hd/veshti.jpg", r: [925, 1160, 166, 250], hs: [["br", [940, 1225, 145, 165]]],
       ta: "பட்டு வேட்டி", tl: "Pattu veshti", title: "Silk veshti",
       body: "The groom's silk veshti and angavastram, white with a gold zari border, are given to him on the wedding day as part of the seer." },
-    { id: "sweets", kind: "coin", r: [850, 1250, 120, 120], hs: [["br", [860, 1265, 95, 95]]],
+    { id: "sweets", kind: "tile", hd: "assets/hd/sweets.jpg", r: [845, 1245, 130, 130], hs: [["br", [860, 1265, 95, 95]]],
       ta: "சீர் பட்சணம்", tl: "Seer bakshanam", title: "Wedding sweets",
       body: "Trays of laddu, athirasam and other sweets come with the seer from the bride's family, and are shared with relatives and guests." },
-    { id: "betel", kind: "coin", r: [962, 1082, 75, 75], hs: [["br", [960, 1080, 62, 62]]],
+    { id: "betel", kind: "tile", hd: "assets/hd/betel.jpg", r: [934, 1054, 130, 130], hs: [["br", [960, 1080, 62, 62]]],
       ta: "வெற்றிலை பாக்கு", tl: "Vetrilai paakku", title: "Betel leaves & areca nut",
       body: "Betel leaves and areca nut are exchanged when the families fix the wedding, and every guest takes some home in the thamboolam bag as thanks." },
-    { id: "manjal", kind: "coin", r: [1000, 1138, 91, 65], hs: [["br", [1008, 1140, 80, 60]]],
+    { id: "manjal", kind: "tile", hd: "assets/hd/manjal.jpg", r: [961, 1106, 130, 130], hs: [["br", [1008, 1140, 80, 60]]],
       ta: "மஞ்சள் குங்குமம்", tl: "Manjal kungumam", title: "Turmeric & kumkum",
       body: "Turmeric and kumkum are signs of a blessed marriage. They are offered to married women at the wedding, and the sacred thread of the thaali is dipped in turmeric." },
     { id: "reception", kind: "calendar", month: "NOV", day: "14", weekday: "Saturday",
@@ -249,6 +247,15 @@
     startTilt();
     busy = false;
     lockScroll(false);
+    preloadHd();
+  }
+
+  let hdLoaded = false;
+  function preloadHd() {
+    if (hdLoaded) return;
+    hdLoaded = true;
+    const load = () => ITEMS.forEach((it) => { if (it.hd) new Image().src = it.hd; });
+    (window.requestIdleCallback || setTimeout)(load, 1200);
   }
 
   // Back to the cover: the card shrinks into the envelope, the flap closes, the envelope turns over.
@@ -326,6 +333,7 @@
   }
 
   env.addEventListener("click", () => openInvite());
+  $("#tapHint").addEventListener("click", () => openInvite());
   $("#toCover").addEventListener("click", closeInvite);
   // Cover button gets out of the way while reading (scrolling down) and returns on scroll up
   let lastY = 0;
@@ -404,57 +412,36 @@
     return d;
   }
 
+  // Every illustration opens as a shimmering card showing its upscaled artwork; the dates as a desk calendar.
   function buildObject(it) {
     const sr = stage.getBoundingClientRect();
-    const box = Math.max(150, Math.min(sr.width * 0.66, sr.height * 0.72, 320));
+    const box = Math.max(170, Math.min(sr.width * 0.72, sr.height * 0.74, 440));
     const o = document.createElement("div");
-    o.className = "obj " + it.kind;
+    o.className = "obj tile";
     let w = box, h = box;
-    const img = it.img || BG;
-
-    if (it.kind === "cutout" || it.kind === "tile") {
+    if (it.kind === "tile") {
       const ar = it.r[2] / it.r[3];
       if (ar > 1) h = box / ar; else w = box * ar;
-    } else if (it.kind === "coin") { w = h = box * 0.86; }
-    else { w = box * 0.78; h = box * 0.92; }
+    } else { w = box * 0.78; h = box * 0.92; }
     o.style.width = w + "px";
     o.style.height = h + "px";
 
-    if (it.kind === "cutout") {
-      for (let i = 9; i >= 1; i--) { const l = layer("edge", -i * 1.6); sprite(l, img, it.r); o.appendChild(l); }
-      const f = layer("face", 0); sprite(f, img, it.r); o.appendChild(f);
-    } else if (it.kind === "coin") {
-      for (let i = 10; i >= 0; i--) o.appendChild(layer("rim" + (i ? " edge-rim" : ""), -i * 1.5));
-      const f = layer("face", 0.6); sprite(f, BG, square(it.r)); o.appendChild(f);
+    for (let i = 10; i >= 1; i--) o.appendChild(layer("slab edge", -i * 1.4));
+    const f = layer("face", 0);
+    if (it.kind === "tile") {
+      f.style.backgroundImage = `url("${it.hd}")`;
+      f.style.backgroundSize = "100% 100%";
     } else {
-      for (let i = 10; i >= 1; i--) o.appendChild(layer("slab edge", -i * 1.4));
-      const f = layer("face", 0);
-      if (it.kind === "tile") sprite(f, BG, it.r);
-      else if (it.kind === "calendar") {
-        f.classList.add("cal-face");
-        f.innerHTML = `<div class="cal-top">${it.month} 2026</div><div class="cal-num">${it.day}</div><div class="cal-day">${it.weekday}</div>`;
-      } else {
-        f.classList.add("map-face");
-        f.innerHTML = `<span class="pond"></span>`;
-      }
-      o.appendChild(f);
-      if (it.kind === "map") {
-        const sh = document.createElement("div"); sh.className = "pin-shadow"; o.appendChild(sh);
-        const pin = document.createElement("div"); pin.className = "pin";
-        pin.innerHTML = `<svg viewBox="0 0 48 64"><path d="M24 2C12 2 3 11 3 23c0 16 21 39 21 39s21-23 21-39C45 11 36 2 24 2z" fill="#7e2a34"/><circle cx="24" cy="23" r="9" fill="#fbe2ad"/></svg>`;
-        o.appendChild(pin);
-      }
+      f.classList.add("cal-face");
+      f.innerHTML = `<div class="cal-top">${it.month} 2026</div><div class="cal-num">${it.day}</div><div class="cal-day">${it.weekday}</div>`;
     }
+    o.appendChild(f);
     const shine = document.createElement("div"); shine.className = "ly shine"; shine.style.transform = "translateZ(1px)";
-    if (it.kind === "coin") shine.style.borderRadius = "50%";
-    if (it.kind !== "cutout") o.appendChild(shine);
+    o.appendChild(shine);
     const shadow = document.createElement("div"); shadow.className = "shadow"; o.appendChild(shadow);
     return o;
   }
-  // coin rims get the gold gradient via the .rim class
-  const styleFix = document.createElement("style");
-  styleFix.textContent = ".obj.coin .edge-rim{filter:brightness(.6)}";
-  document.head.appendChild(styleFix);
+
 
   function icsFor(it) {
     const now = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
@@ -479,16 +466,6 @@
       link("Add to Google Calendar", "https://calendar.google.com/calendar/render?" + q, true);
       const a = link("Apple / Outlook (.ics)", URL.createObjectURL(new Blob([icsFor(it)], { type: "text/calendar" })));
       a.download = `sindhu-anand-${it.id}.ics`; a.removeAttribute("target");
-    } else if (it.kind === "map") {
-      link("Open in Google Maps", MAPS, true);
-      const b = document.createElement("button");
-      b.type = "button"; b.textContent = "Copy address";
-      b.onclick = async () => {
-        try { await navigator.clipboard.writeText(ADDRESS); b.textContent = "Copied"; }
-        catch { b.textContent = "Couldn't copy"; }
-        setTimeout(() => (b.textContent = "Copy address"), 1800);
-      };
-      box.appendChild(b);
     }
     box.hidden = !box.children.length;
   }
@@ -530,7 +507,7 @@
 
   document.addEventListener("click", (e) => {
     const t = e.target.closest("[data-item]");
-    if (!t || t.closest(".mini") || !opened) return;
+    if (!t || t.closest(".mini") || !opened || busy) return;
     t.classList.remove("flash"); void t.offsetWidth; t.classList.add("flash");
     openInspector(t.dataset.item);
   });
