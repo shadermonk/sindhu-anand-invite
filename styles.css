@@ -248,8 +248,9 @@ body:not(.is-open) .after-open { display: none !important; }
   position: absolute; inset: 0; background: var(--paper);
   box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .7), 0 0 0 1px rgba(209, 185, 148, .25);
 }
+.content button, .content a { pointer-events: auto; }
 .art {
-  position: absolute;
+  position: absolute; z-index: 11; /* above the text block for hit-testing; depth still comes from translateZ */
   transform: translateZ(var(--z, 24px)) scale(var(--zs, .982));
   transition: transform .45s var(--ease-out);
   pointer-events: none;
@@ -257,6 +258,7 @@ body:not(.is-open) .after-open { display: none !important; }
 .art-img { position: absolute; inset: 0; opacity: .8; background-repeat: no-repeat; transition: opacity .35s; }
 .hs {
   position: absolute; pointer-events: auto; border: 0; padding: 0; background: none; cursor: pointer;
+  touch-action: manipulation; /* no double-tap-zoom delay */
   border-radius: 40%;
   -webkit-tap-highlight-color: transparent;
 }
@@ -293,8 +295,11 @@ body:not(.is-open) .after-open { display: none !important; }
 @keyframes flash { from { background: radial-gradient(closest-side, rgba(233, 162, 59, .55), transparent); } }
 .mini .hs::after, .mini .hs::before { display: none; }
 
+/* The text block spans the whole card. Let taps fall through it to the illustration hotspots
+   (iOS Safari hit-tests 3D layers by stacking order, not depth); only its own buttons catch taps. */
 .content {
   position: relative; z-index: 10;
+  pointer-events: none;
   transform: translateZ(10px) scale(.992);
   display: flex; flex-direction: column; align-items: center; text-align: center;
   gap: max(12px, calc(20 * var(--u)));
