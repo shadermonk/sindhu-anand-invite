@@ -116,8 +116,8 @@
       if (cx < 220) b.dataset.align = "start"; else if (cx > 900) b.dataset.align = "end";
       b.style.left = `${((hx - L[0]) / L[2]) * 100}%`;
       b.style.top = `${((hy - L[1]) / L[3]) * 100}%`;
-      b.style.width = `max(36px, ${(hw / L[2]) * 100}%)`;
-      b.style.height = `max(36px, ${(hh / L[3]) * 100}%)`;
+      b.style.width = `max(40px, ${(hw / L[2]) * 100}%)`;
+      b.style.height = `max(40px, ${(hh / L[3]) * 100}%)`;
       b.style.setProperty("--delay", (delay = (delay + 0.37) % 2.8).toFixed(2) + "s");
       artLayers.querySelector(`[data-layer="${layerId}"]`).appendChild(b);
     }
@@ -327,6 +327,14 @@
 
   env.addEventListener("click", () => openInvite());
   $("#toCover").addEventListener("click", closeInvite);
+  // Cover button gets out of the way while reading (scrolling down) and returns on scroll up
+  let lastY = 0;
+  addEventListener("scroll", () => {
+    const y = scrollY, btn = $("#toCover");
+    if (y > lastY + 6 && y > 60) btn.classList.add("away");
+    else if (y < lastY - 6 || y < 60) btn.classList.remove("away");
+    lastY = y;
+  }, { passive: true });
   let seenEnvelope = false;
   try { seenEnvelope = sessionStorage.getItem("opened") === "1"; } catch { /* storage blocked */ }
   if (params.has("open") || seenEnvelope) { // coming back from the RSVP page: skip the envelope

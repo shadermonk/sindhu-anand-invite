@@ -54,8 +54,8 @@ button { font: inherit; color: inherit; }
   flex-direction: column;
   align-items: center;
   gap: 28px;
-  padding-inline: 12px;
-  padding-block: 24px 20px;
+  padding-inline: max(12px, env(safe-area-inset-left, 0px)) max(12px, env(safe-area-inset-right, 0px));
+  padding-block: 24px calc(20px + env(safe-area-inset-bottom, 0px));
   min-height: 100svh;
 }
 
@@ -71,7 +71,7 @@ button { font: inherit; color: inherit; }
   padding-top: 8vh;
 }
 .env {
-  --ew: min(560px, calc(100vw - 32px));
+  --ew: min(560px, calc(100vw - 32px), calc((100svh - 110px) * 760 / 576));
   width: var(--ew);
   aspect-ratio: 760 / 576;
   position: relative;
@@ -198,7 +198,8 @@ body.is-open .page { padding-top: calc(24px + 52px); }
 /* During the open/close morph the envelope stays on screen, pinned exactly where it sits on the cover. */
 body.env-overlay .cover-stage {
   display: flex; position: fixed; z-index: 0; pointer-events: none;
-  top: 24px; left: 12px; right: 12px; width: auto; height: calc(100svh - 44px);
+  top: 24px; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); width: auto;
+  height: calc(100svh - 44px - env(safe-area-inset-bottom, 0px));
 }
 body.env-overlay .card-wrap { position: relative; z-index: 1; }
 
@@ -218,6 +219,8 @@ body.env-overlay .card-wrap { position: relative; z-index: 1; }
   -webkit-tap-highlight-color: transparent;
 }
 .to-cover svg { width: 18px; height: 18px; }
+.to-cover { transition: background .2s, transform .35s var(--ease-out), opacity .25s; }
+.to-cover.away { transform: translateY(calc(-100% - 24px)); opacity: 0; pointer-events: none; }
 .to-cover:active { transform: scale(.96); }
 @media (hover: hover) { .to-cover:hover { background: rgba(126, 42, 52, .85); } }
 body:not(.is-open) .after-open { display: none !important; }
@@ -470,7 +473,7 @@ body:not(.is-open) .after-open { display: none !important; }
 .photo-box.on { opacity: 1; }
 .print {
   margin: 0; background: var(--paper); padding: clamp(8px, 2.4vw, 16px) clamp(8px, 2.4vw, 16px) 0;
-  width: min(100%, 980px, calc((100svh - 160px) * 1.5));
+  width: min(100%, 980px, calc((100svh - 110px) * 1.5));
   box-shadow: 0 40px 80px -20px rgba(0, 0, 0, .75);
   transition: transform .25s ease-out;
   transform-style: preserve-3d;
@@ -566,6 +569,7 @@ body:not(.is-open) .after-open { display: none !important; }
   display: flex; flex-direction: column; gap: 8px;
   box-shadow: 0 -20px 40px rgba(0, 0, 0, .3);
   transform: translateY(30px); opacity: 0; transition: transform .45s var(--ease-out) .12s, opacity .35s .12s;
+  max-height: 62svh; overflow-y: auto; overscroll-behavior: contain;
 }
 .callout::before { content: ""; position: absolute; top: -9px; left: 50%; margin-left: -9px; width: 18px; height: 18px; background: var(--paper); transform: rotate(45deg); border-radius: 3px; }
 .inspector.on .callout { transform: none; opacity: 1; }
@@ -590,6 +594,31 @@ body:not(.is-open) .after-open { display: none !important; }
   .insp-nav.prev { left: max(16px, calc(50% - 360px)); }
   .insp-nav.next { right: max(16px, calc(50% - 360px)); }
 }
+/* Phones held sideways: 3D object on the left, explanation on the right; cover without top padding */
+@media (orientation: landscape) and (max-height: 520px) {
+  .cover-stage { padding-top: 0; gap: 16px; }
+  .inspector { grid-template-rows: 1fr; grid-template-columns: 1fr min(400px, 50%); }
+  .insp-stage { padding-top: 0; }
+  .callout {
+    margin: 12px 12px 12px 0; align-self: center; width: auto;
+    border-radius: 18px; max-height: calc(100svh - 24px);
+    padding-bottom: 22px;
+  }
+  .callout::before { display: none; }
+  .insp-close { right: auto; left: 14px; }
+  .insp-nav.prev { left: 12px; }
+  .insp-nav.next { right: 12px; }
+  .drag-hint { bottom: 6px; }
+}
+/* Browsers without container units (iOS 15): size the card from the viewport instead */
+@supports not (width: 1cqw) {
+  .card-face { --u: calc(min(576px, 100vw - 24px) / 576); }
+  .cover-names .n { font-size: 30px; }
+  .cover-names .amp { font-size: 68px; }
+  .cover-kicker { font-size: 10px; margin-top: 6px; }
+  .cover-to { right: 18px; bottom: 16px; font-size: 17px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
