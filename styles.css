@@ -175,6 +175,26 @@ button { font: inherit; color: inherit; }
 @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(233, 162, 59, .6); } 100% { box-shadow: 0 0 0 12px rgba(233, 162, 59, 0); } }
 
 body.is-open .cover-stage { display: none; }
+body.is-open .page { padding-top: calc(24px + 52px); }
+
+/* Back to the cover */
+.to-cover {
+  position: fixed; z-index: 40;
+  top: calc(env(safe-area-inset-top, 0px) + 14px); left: 14px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 15px 9px 12px; border-radius: 999px;
+  border: 1px solid rgba(251, 226, 173, .3);
+  background: rgba(42, 13, 18, .66);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  color: var(--gold-bright); cursor: pointer;
+  font: 700 12px/1 var(--f-body); letter-spacing: .14em; text-transform: uppercase;
+  box-shadow: 0 8px 20px -10px rgba(0, 0, 0, .7);
+  transition: background .2s, transform .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.to-cover svg { width: 18px; height: 18px; }
+.to-cover:active { transform: scale(.96); }
+@media (hover: hover) { .to-cover:hover { background: rgba(126, 42, 52, .85); } }
 body:not(.is-open) .after-open { display: none !important; }
 
 /* ───────────── The card ───────────── */

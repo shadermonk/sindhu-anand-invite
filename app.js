@@ -151,26 +151,35 @@
     } else if (D) listenGyro();
   }
 
+  // Every envelope animation is kept so closing can play the same motion backwards.
+  const envAnims = [];
+  const keep = (anim) => { envAnims.push(anim); return anim; };
+  let busy = false;
+  let openedInstantly = false;
+  const fadeIns = () => document.querySelectorAll(".explore, .rsvp-cta, .foot, .to-cover");
+
   async function openInvite(instant = false) {
-    if (opened) return;
+    if (opened || busy) return;
+    busy = true;
     opened = true;
+    openedInstantly = instant || reduceMotion;
     askMotionPermission();
     try { sessionStorage.setItem("opened", "1"); } catch { /* storage blocked */ }
     $("#tapHint").style.visibility = "hidden";
     env.style.animation = "none";
 
-    if (!reduceMotion && !instant) {
+    if (!openedInstantly) {
       const inner = $("#envInner");
-      await inner.animate([{ transform: "rotateY(0)" }, { transform: "rotateY(90deg)" }], { duration: 320, easing: "ease-in", fill: "forwards" }).finished;
+      await keep(inner.animate([{ transform: "rotateY(0)" }, { transform: "rotateY(90deg)" }], { duration: 320, easing: "ease-in", fill: "forwards" })).finished;
       env.classList.add("show-back");
       fitMini();
-      await inner.animate([{ transform: "rotateY(-90deg)" }, { transform: "rotateY(0)" }], { duration: 380, easing: "ease-out", fill: "forwards" }).finished;
+      await keep(inner.animate([{ transform: "rotateY(-90deg)" }, { transform: "rotateY(0)" }], { duration: 380, easing: "ease-out", fill: "forwards" })).finished;
       await wait(120);
-      $("#seal").animate([{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(1.4)" }], { duration: 260, fill: "forwards" });
-      await $("#flap").animate([{ transform: "rotateX(0)" }, { transform: "rotateX(180deg)" }], { duration: 620, easing: "cubic-bezier(.5,0,.3,1)", fill: "forwards" }).finished;
+      keep($("#seal").animate([{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(1.4)" }], { duration: 260, fill: "forwards" }));
+      await keep($("#flap").animate([{ transform: "rotateX(0)" }, { transform: "rotateX(180deg)" }], { duration: 620, easing: "cubic-bezier(.5,0,.3,1)", fill: "forwards" })).finished;
       $("#flap").style.zIndex = 1;
-      env.animate([{ transform: "translateY(0)" }, { transform: "translateY(22%)" }], { duration: 900, easing: "cubic-bezier(.3,.7,.2,1)", fill: "forwards" });
-      await $("#mini").animate([{ transform: "translateY(0)" }, { transform: "translateY(-64%)" }], { duration: 900, easing: "cubic-bezier(.3,.7,.2,1)", fill: "forwards" }).finished;
+      keep(env.animate([{ transform: "translateY(0)" }, { transform: "translateY(22%)" }], { duration: 900, easing: "cubic-bezier(.3,.7,.2,1)", fill: "forwards" }));
+      await keep($("#mini").animate([{ transform: "translateY(0)" }, { transform: "translateY(-64%)" }], { duration: 900, easing: "cubic-bezier(.3,.7,.2,1)", fill: "forwards" })).finished;
     }
 
     const from = $("#mini").getBoundingClientRect();
@@ -178,18 +187,86 @@
     window.scrollTo(0, 0);
     const wrap = $("#cardWrap");
     const to = wrap.getBoundingClientRect();
-    if (!reduceMotion && !instant && from.width) {
+    if (!openedInstantly && from.width) {
       wrap.animate([
         { transformOrigin: "0 0", transform: `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})` },
         { transformOrigin: "0 0", transform: "none" },
       ], { duration: 800, easing: "cubic-bezier(.2,.8,.2,1)" });
-      document.querySelectorAll(".explore, .rsvp, .foot").forEach((el, i) =>
+      fadeIns().forEach((el, i) =>
         el.animate([{ opacity: 0, transform: "translateY(16px)" }, { opacity: 1, transform: "none" }], { duration: 600, delay: 550 + i * 120, easing: "ease-out", fill: "backwards" }));
       setTimeout(() => petals.burst(70), 450);
     }
+    tilt.paused = false;
     startTilt();
+    busy = false;
   }
+
+  // Back to the cover: the card shrinks into the envelope, the flap closes, the envelope turns over.
+  async function closeInvite() {
+    if (!opened || busy) return;
+    busy = true;
+    tilt.paused = true;
+    try { sessionStorage.removeItem("opened"); } catch { /* storage blocked */ }
+    if (params.has("open")) { params.delete("open"); history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "")); }
+
+    const wrap = $("#cardWrap");
+    if (scrollY > 0) {
+      window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+      await new Promise((r) => { const t0 = performance.now(); const tick = () => (scrollY < 2 || performance.now() - t0 > 900) ? r() : requestAnimationFrame(tick); tick(); });
+    }
+
+    if (openedInstantly) {
+      // No envelope state to rewind: put the envelope back in its closed, front-facing state.
+      petals.clear?.();
+      if (!reduceMotion) await wrap.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateY(30px) scale(.9)" }], { duration: 380, easing: "ease-in" }).finished;
+      document.body.classList.remove("is-open");
+      resetEnvelope();
+      if (!reduceMotion) env.animate([{ opacity: 0, transform: "scale(.94)" }, { opacity: 1, transform: "none" }], { duration: 420, easing: "ease-out" });
+    } else {
+      // 1. card shrinks back to where the miniature sits above the open envelope
+      const to = wrap.getBoundingClientRect();
+      document.body.classList.remove("is-open");
+      fitMini();
+      const mini = $("#mini").getBoundingClientRect();
+      document.body.classList.add("is-open");
+      petals.clear?.();
+      fadeIns().forEach((el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250, fill: "forwards" }));
+      await wrap.animate([
+        { transformOrigin: "0 0", transform: "none" },
+        { transformOrigin: "0 0", transform: `translate(${mini.left - to.left}px, ${mini.top - to.top}px) scale(${mini.width / to.width}, ${mini.height / to.height})` },
+      ], { duration: 650, easing: "cubic-bezier(.5,0,.2,1)", fill: "forwards" }).finished;
+      document.body.classList.remove("is-open");
+      card.style.transform = "";
+      wrap.getAnimations().forEach((x) => x.cancel());
+      fadeIns().forEach((el) => el.getAnimations().forEach((x) => x.cancel()));
+
+      // 2. rewind the envelope: card slides in, flap closes, seal returns, envelope turns to the front
+      const [flip1, flip2, sealA, flapA, dropA, miniA] = envAnims;
+      miniA.reverse(); dropA.reverse();
+      await miniA.finished;
+      $("#flap").style.zIndex = "";
+      flapA.reverse(); await flapA.finished;
+      sealA.reverse(); await sealA.finished;
+      flip2.reverse(); await flip2.finished;
+      env.classList.remove("show-back");
+      flip1.reverse(); await flip1.finished;
+      resetEnvelope();
+    }
+    opened = false;
+    busy = false;
+    env.focus({ preventScroll: true });
+  }
+
+  function resetEnvelope() {
+    envAnims.splice(0).forEach((x) => x.cancel());
+    env.classList.remove("show-back");
+    $("#flap").style.zIndex = "";
+    env.style.animation = "";
+    $("#tapHint").style.visibility = "";
+  }
+
   env.addEventListener("click", () => openInvite());
+  $("#toCover").addEventListener("click", closeInvite);
   let seenEnvelope = false;
   try { seenEnvelope = sessionStorage.getItem("opened") === "1"; } catch { /* storage blocked */ }
   if (params.has("open") || seenEnvelope) { // coming back from the RSVP page: skip the envelope

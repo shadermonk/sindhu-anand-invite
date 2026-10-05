@@ -20,10 +20,14 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600&family=Manrope:wght@500;600;700;800&family=Hind+Madurai:wght@600&display=swap">
 <link rel="preload" as="image" href="assets/bg.png">
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/runethia-amp.woff2" crossorigin>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=202610051424">
 </head>
 <body>
 <main class="page">
+  <button class="to-cover after-open" id="toCover" type="button" aria-label="Close the invitation and go back to the cover">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="1.5"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg>
+    <span>Cover</span>
+  </button>
 
   <!-- Cover: the envelope from the Figma "cover" frame -->
   <section class="cover-stage" aria-label="Invitation envelope">
@@ -87,7 +91,7 @@
               </button>
             </div>
           </div>
-          <a class="plain venue" id="venueLink" href="https://www.google.com/maps/search/?api=1&amp;query=SDB+Grand+Palace+Selaiyur+Chennai" target="_blank" rel="noopener" aria-label="Venue: SDB Grand Palace — open in Google Maps">
+          <a class="plain venue" id="venueLink" href="https://maps.app.goo.gl/E56zm4sS6qnPtL4U7" target="_blank" rel="noopener" aria-label="Venue: SDB Grand Palace — open in Google Maps">
             <span class="label">Venue:</span>
             <b>SDB Grand Palace</b>
             <span>No.22, Devaraj Nagar, Agaram Main Road,</span>
@@ -148,8 +152,8 @@
 
 <canvas id="petals" aria-hidden="true"></canvas>
 
-<script src="config.js"></script>
-<script src="petals.js"></script>
-<script src="app.js"></script>
+<script src="config.js?v=202610051424"></script>
+<script src="petals.js?v=202610051424"></script>
+<script src="app.js?v=202610051424"></script>
 </body>
 </html>

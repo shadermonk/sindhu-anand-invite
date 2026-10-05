@@ -30,6 +30,7 @@ window.Petals = (() => {
       raf = ps.length ? requestAnimationFrame(tick) : 0;
       if (!raf) ctx.clearRect(0, 0, innerWidth, innerHeight);
     }
-    return { burst };
+    function clear() { ps = []; }
+    return { burst, clear };
 })();
 
