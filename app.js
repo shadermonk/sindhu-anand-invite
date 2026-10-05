@@ -31,7 +31,7 @@
     br: { r: [605, 925, 486, 517], z: 36 },
   };
 
-  const MAPS = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("SDB Grand Palace, Devaraj Nagar, Agaram Main Road, Selaiyur, Tambaram, Chennai 600073");
+  const MAPS = cfg.mapsUrl || "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("SDB Grand Palace, Devaraj Nagar, Agaram Main Road, Selaiyur, Tambaram, Chennai 600073");
   const ADDRESS = "SDB Grand Palace, No.22, Devaraj Nagar, Agaram Main Road, Selaiyur, Tambaram, Chennai - 600073";
 
   const ITEMS = [
@@ -76,11 +76,11 @@
       ta: "முகூர்த்தம்", tl: "Muhurtham", title: "Wedding",
       body: "Sunday, 15th November 2026, 9:45 AM to 11:15 AM at SDB Grand Palace. The thaali is tied during this auspicious window, so please arrive a little early.",
       cal: { text: "Sindhu & Anand · Wedding (Muhurtham)", start: "20261115T041500Z", end: "20261115T054500Z" } },
-    { id: "venue", kind: "map",
-      ta: "மண்டபம்", tl: "Mandapam", title: "SDB Grand Palace",
-      body: "No.22, Devaraj Nagar, Agaram Main Road, Selaiyur, Tambaram, Chennai - 600073." },
   ];
   const byId = Object.fromEntries(ITEMS.map((it) => [it.id, it]));
+
+  // Venue opens Google Maps directly.
+  $("#venueLink").href = MAPS;
 
   // ───────── Build the card's art layers + tappable hotspots ─────────
   const artLayers = $("#artLayers");
@@ -193,7 +193,7 @@
   let seenEnvelope = false;
   try { seenEnvelope = sessionStorage.getItem("opened") === "1"; } catch { /* storage blocked */ }
   if (params.has("open") || seenEnvelope) { // coming back from the RSVP page: skip the envelope
-    openInvite(true);
+    queueMicrotask(() => openInvite(true)); // after the rest of this script has set up tilt etc.
     addEventListener("pointerdown", askMotionPermission, { once: true });
   }
 

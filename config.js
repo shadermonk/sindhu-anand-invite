@@ -11,6 +11,9 @@ window.INVITE_CONFIG = {
   // Namespace for the free fallback visitor counter (used only when sheetUrl is empty).
   counterKey: "sindhu-anand-2026",
 
+  // Google Maps link opened when guests tap the venue on the card.
+  mapsUrl: "https://www.google.com/maps/search/?api=1&query=SDB+Grand+Palace+Selaiyur+Tambaram+Chennai",
+
   // Last day to RSVP, shown above the form.
   rsvpBy: "1st November 2026",
 };
