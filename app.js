@@ -96,7 +96,10 @@
     if (id[1] === "l") el.style.left = u(x); else el.style.right = u(BG.w - x - w);
     el.style.setProperty("--z", L.z + "px");
     el.style.setProperty("--zs", (1 - L.z / 1300).toFixed(4));
-    sprite(el, BG, L.r);
+    const img = document.createElement("div"); // the artwork itself, faded like the print; hotspots stay full strength
+    img.className = "art-img";
+    sprite(img, BG, L.r);
+    el.appendChild(img);
     artLayers.appendChild(el);
   }
   let delay = 0;
@@ -108,6 +111,9 @@
       b.className = "hs";
       b.dataset.item = it.id;
       b.setAttribute("aria-label", `${it.title} — what it means`);
+      b.dataset.label = it.title;
+      const cx = hx + hw / 2; // keep the hover label inside the card near its edges
+      if (cx < 220) b.dataset.align = "start"; else if (cx > 900) b.dataset.align = "end";
       b.style.left = `${((hx - L[0]) / L[2]) * 100}%`;
       b.style.top = `${((hy - L[1]) / L[3]) * 100}%`;
       b.style.width = `max(36px, ${(hw / L[2]) * 100}%)`;
