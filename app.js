@@ -562,8 +562,11 @@
             rot.x += (idleX - rot.x) * 0.04;
           }
         }
-        obj.style.transform = `rotateX(${rot.x.toFixed(2)}deg) rotateY(${rot.y.toFixed(2)}deg)`;
-        obj.style.setProperty("--sx", `${(50 - (((rot.y % 360) + 540) % 360 - 180) * 0.8).toFixed(1)}%`);
+        // very subtle life: the card floats a few pixels and the light drifts slowly across it
+        const float = reduceMotion ? 0 : Math.sin(t / 1900) * 3;
+        const drift = reduceMotion ? 0 : Math.sin(t / 3200) * 18;
+        obj.style.transform = `translateY(${float.toFixed(2)}px) rotateX(${rot.x.toFixed(2)}deg) rotateY(${rot.y.toFixed(2)}deg)`;
+        obj.style.setProperty("--sx", `${(50 + drift - (((rot.y % 360) + 540) % 360 - 180) * 0.8).toFixed(1)}%`);
       }
       requestAnimationFrame(frame);
     };
