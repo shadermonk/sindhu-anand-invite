@@ -194,6 +194,7 @@
     busy = true;
     lockScroll(true);
     env.classList.add("is-opening");
+    $("#tapHint").classList.add("gone");
     opened = true;
     openedInstantly = instant || reduceMotion;
     askMotionPermission();
@@ -332,7 +333,7 @@
     env.classList.remove("show-back");
     $("#flap").style.zIndex = "";
     env.style.animation = "";
-    $("#tapHint").style.visibility = "";
+    $("#tapHint").classList.remove("gone");
   }
 
   env.addEventListener("click", () => openInvite());
