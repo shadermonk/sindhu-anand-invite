@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sindhu &amp; Anand</title>
+<meta name="description" content="You're invited to the wedding of Sindhu & Anand — Reception 14 Nov, Wedding 15 Nov 2026, SDB Grand Palace, Chennai.">
+<meta name="theme-color" content="#2a0d12">
+<!-- WhatsApp / social link preview -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Sindhu & Anand · Wedding Invitation">
+<meta property="og:description" content="Reception 14 Nov · Wedding 15 Nov 2026 · SDB Grand Palace, Chennai. Tap to open your invitation and RSVP.">
+<meta property="og:image" content="assets/og-cover.jpg">
+<meta property="og:image:width" content="1216">
+<meta property="og:image:height" content="922">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/ganesha.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600&family=Manrope:wght@500;600;700;800&family=Pinyon+Script&family=Hind+Madurai:wght@600&display=swap">
+<link rel="preload" as="image" href="assets/bg.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="page">
+
+  <!-- Cover: the envelope from the Figma "cover" frame -->
+  <section class="cover-stage" aria-label="Invitation envelope">
+    <button class="env" id="env" type="button" aria-label="Open the invitation">
+      <span class="env-inner" id="envInner">
+        <span class="env-face env-front">
+          <span class="cover-names">
+            <span class="amp" aria-hidden="true">&amp;</span>
+            <span class="n">Sindhu</span>
+            <span class="n">Anand</span>
+          </span>
+          <span class="cover-kicker">Wedding invite</span>
+          <span class="cover-to" id="coverTo" hidden><small>Specially for</small><span id="coverToName"></span></span>
+        </span>
+        <span class="env-face env-back">
+          <span class="env-lining"></span>
+          <span class="mini-wrap"><span class="mini" id="mini"><span class="mini-scale" id="miniScale"></span></span></span>
+          <span class="pocket"></span>
+          <span class="flap" id="flap"></span>
+          <span class="seal" id="seal" aria-hidden="true">
+            <svg viewBox="232 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M242 8C242 9.1 241.1 10 240 10M242 8C242 6.9 241.1 6 240 6M240 6V5C240 4.4 240.2 3.8 240.5 3.3 240.8 2.8 241.3 2.5 241.9 2.2 242.4 2 243 1.9 243.6 2.1 244.2 2.2 244.7 2.5 245.1 2.9 245.5 3.3 245.8 3.8 245.9 4.4 246.1 5 246 5.6 245.8 6.1 245.5 6.7 245.2 7.2 244.7 7.5 244.2 7.8 243.6 8 243 8H242M240 10C238.9 10 238 9.1 238 8M238 8H237C236.4 8 235.8 8.2 235.3 8.5 234.8 8.8 234.5 9.3 234.2 9.9 234 10.4 233.9 11 234.1 11.6 234.2 12.2 234.5 12.7 234.9 13.1 235.3 13.5 235.8 13.8 236.4 13.9 237 14.1 237.6 14 238.1 13.8 238.7 13.5 239.2 13.2 239.5 12.7 239.8 12.2 240 11.6 240 11V10M240 6C238.9 6 238 6.9 238 8M243 8C243.6 8 244.2 8.2 244.7 8.5 245.2 8.8 245.5 9.3 245.8 9.9 246 10.4 246.1 11 245.9 11.6 245.8 12.2 245.5 12.7 245.1 13.1 244.7 13.5 244.2 13.8 243.6 13.9 243 14.1 242.4 14 241.9 13.8 241.3 13.5 240.8 13.2 240.5 12.7 240.2 12.2 240 11.6 240 11M237 8C236.4 8 235.8 7.8 235.3 7.5 234.8 7.2 234.5 6.7 234.2 6.1 234 5.6 233.9 5 234.1 4.4 234.2 3.8 234.5 3.3 234.9 2.9 235.3 2.5 235.8 2.2 236.4 2.1 237 1.9 237.6 2 238.1 2.2 238.7 2.5 239.2 2.8 239.5 3.3 239.8 3.8 240 4.4 240 5"/></svg>
+          </span>
+        </span>
+      </span>
+    </button>
+    <p class="tap-hint" id="tapHint">Tap to open</p>
+  </section>
+
+  <!-- The invitation (Figma "invitation" frame) -->
+  <div class="card-wrap after-open" id="cardWrap">
+    <article class="card" id="card" aria-label="Wedding invitation">
+      <div class="card-face" id="cardFace">
+        <div class="paper"></div>
+        <div class="art-layers" id="artLayers"></div>
+        <div class="content">
+          <button class="plain ganesha" type="button" data-item="ganesha" aria-label="Pillaiyar (Lord Ganesha) — what it means">
+            <img src="assets/ganesha.png" alt="">
+          </button>
+          <p class="phrase">We warmly invite you to celebrate<br>the wedding of</p>
+          <button class="plain names" type="button" id="names" aria-label="Sindhu and Anand">
+            <span class="amp" aria-hidden="true">&amp;</span>
+            <span class="n">Sindhu</span>
+            <span class="n">Anand</span>
+          </button>
+          <p class="note">Join us for this special beginning,<br>together with our families!</p>
+          <svg class="accent" viewBox="0 0 480 16" fill="none" aria-hidden="true">
+            <line x1="148" y1="7.5" x2="220" y2="7.5" stroke="#D1B994"/>
+            <path d="M242 8C242 9.10457 241.105 10 240 10M242 8C242 6.89543 241.105 6 240 6M240 6L240 5C240 4.40666 240.176 3.82664 240.506 3.33329C240.835 2.83994 241.304 2.45543 241.852 2.22836C242.4 2.0013 243.003 1.94189 243.585 2.05765C244.167 2.1734 244.702 2.45912 245.121 2.87868C245.541 3.29824 245.827 3.83279 245.942 4.41473C246.058 4.99667 245.999 5.59987 245.772 6.14805C245.545 6.69623 245.16 7.16477 244.667 7.49441C244.173 7.82405 243.593 8 243 8L242 8M240 10C238.895 10 238 9.10457 238 8M238 8L237 8C236.407 8 235.827 8.17595 235.333 8.50559C234.84 8.83524 234.455 9.30377 234.228 9.85195C234.001 10.4001 233.942 11.0033 234.058 11.5853C234.173 12.1672 234.459 12.7018 234.879 13.1213C235.298 13.5409 235.833 13.8266 236.415 13.9424C236.997 14.0581 237.6 13.9987 238.148 13.7716C238.696 13.5446 239.165 13.1601 239.494 12.6667C239.824 12.1734 240 11.5933 240 11L240 10M240 6C238.895 6 238 6.89543 238 8M243 8C243.593 8 244.173 8.17595 244.667 8.50559C245.16 8.83524 245.545 9.30377 245.772 9.85195C245.999 10.4001 246.058 11.0033 245.942 11.5853C245.827 12.1672 245.541 12.7018 245.121 13.1213C244.702 13.5409 244.167 13.8266 243.585 13.9424C243.003 14.0581 242.4 13.9987 241.852 13.7716C241.304 13.5446 240.835 13.1601 240.506 12.6667C240.176 12.1734 240 11.5933 240 11M237 8C236.407 8 235.827 7.82405 235.333 7.49441C234.84 7.16477 234.455 6.69623 234.228 6.14805C234.001 5.59987 233.942 4.99667 234.058 4.41473C234.173 3.83279 234.459 3.29824 234.879 2.87868C235.298 2.45912 235.833 2.1734 236.415 2.05765C236.997 1.94189 237.6 2.0013 238.148 2.22836C238.696 2.45543 239.165 2.83994 239.494 3.33329C239.824 3.82664 240 4.40666 240 5M237.333 5.33333L238.587 6.58667M241.413 6.58667L242.667 5.33333M237.333 10.6667L238.587 9.41341M241.413 9.41341L242.667 10.6667" stroke="#D1B994" stroke-linecap="round"/>
+            <line x1="260" y1="7.5" x2="332" y2="7.5" stroke="#D1B994"/>
+          </svg>
+          <div class="dates">
+            <p class="label">Save the dates:</p>
+            <div class="date-row">
+              <button class="plain date" type="button" data-item="reception" aria-label="Reception, 14th November 2026, 7 to 9 PM — add to calendar">
+                <b>Reception</b><span>14th Nov 2026</span><span>7 PM - 9 PM</span><i class="tap-chip"></i>
+              </button>
+              <i class="vline" aria-hidden="true"></i>
+              <button class="plain date" type="button" data-item="wedding" aria-label="Wedding, 15th November 2026, 9:45 to 11:15 AM — add to calendar">
+                <b>Wedding</b><span>15th Nov 2026</span><span>9:45 AM - 11:15 AM</span><i class="tap-chip"></i>
+              </button>
+            </div>
+          </div>
+          <button class="plain venue" type="button" data-item="venue" aria-label="Venue: SDB Grand Palace — open map">
+            <span class="label">Venue:</span>
+            <b>SDB Grand Palace</b>
+            <span>No.22, Devaraj Nagar, Agaram Main Road,</span>
+            <span>Selaiyur, Tambaram, Chennai - 600073</span>
+            <i class="tap-chip"></i>
+          </button>
+        </div>
+      </div>
+      <div class="sheen" aria-hidden="true"></div>
+    </article>
+  </div>
+
+  <p class="explore after-open" id="explore">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1-6 6h-1a6 6 0 0 1-4.6-2.2L4 15.5a1.5 1.5 0 0 1 2.3-1.9L9 16"/></svg>
+    Tap the flowers, gifts &amp; details to see what they mean
+  </p>
+
+  <!-- RSVP -->
+  <section class="rsvp after-open" id="rsvp" aria-labelledby="rsvpTitle">
+    <div class="rsvp-inner">
+      <header>
+        <p class="eyebrow">RSVP · kindly reply by <span id="rsvpBy"></span></p>
+        <h2 id="rsvpTitle">Will you join us?</h2>
+        <p class="sub">Let us know if you can make it, so we can keep a seat and a banana leaf ready for you.</p>
+      </header>
+
+      <form id="rsvpForm" novalidate>
+        <div class="field">
+          <label for="f-name">Your name</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" required placeholder="e.g. Priya & family">
+        </div>
+        <div class="field">
+          <span class="flabel" id="attLabel">Will you attend?</span>
+          <div class="choice" role="radiogroup" aria-labelledby="attLabel">
+            <label><input type="radio" name="attending" id="f-yes" value="Yes" checked>Joyfully accept<small>We'll be there</small></label>
+            <label><input type="radio" name="attending" id="f-no" value="No">Regretfully decline<small>Sending blessings</small></label>
+          </div>
+        </div>
+        <div class="when-yes">
+          <div class="field">
+            <span class="flabel">Which events?</span>
+            <div class="events">
+              <label><input type="checkbox" id="f-reception" name="reception" checked>Reception · 14 Nov</label>
+              <label><input type="checkbox" id="f-wedding" name="wedding" checked>Wedding · 15 Nov</label>
+            </div>
+          </div>
+          <div class="field">
+            <span class="flabel" id="guestsLabel">Number of guests <span class="opt">(including you)</span></span>
+            <div class="stepper" aria-labelledby="guestsLabel">
+              <button type="button" id="g-minus" aria-label="One fewer guest">−</button>
+              <output id="f-guests" aria-live="polite">1</output>
+              <button type="button" id="g-plus" aria-label="One more guest">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-phone">WhatsApp number <span class="opt">(optional)</span></label>
+          <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+91 98765 43210">
+        </div>
+        <div class="field">
+          <label for="f-msg">Wishes for the couple <span class="opt">(optional)</span></label>
+          <textarea id="f-msg" name="message" placeholder="A blessing, a memory, or just hello"></textarea>
+        </div>
+        <button class="submit" type="submit" id="submitBtn">Send RSVP</button>
+        <p class="form-msg" id="formMsg" role="alert"></p>
+      </form>
+
+      <div class="thanks" id="thanks" hidden>
+        <h3 id="thanksTitle">Thank you!</h3>
+        <p id="thanksText"></p>
+        <button class="linkish" type="button" id="editRsvp">Change my response</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot after-open">
+    <p class="bless">With love, the families of Sindhu &amp; Anand</p>
+    <p class="visits" id="visits" aria-live="polite"></p>
+  </footer>
+</main>
+
+<!-- 3D inspector + callout -->
+<div class="inspector" id="inspector" role="dialog" aria-modal="true" aria-labelledby="cTitle" hidden>
+  <div class="insp-stage" id="inspStage">
+    <div class="insp-glow"></div>
+    <div class="obj-pop" id="objPop"></div>
+    <button class="insp-nav prev" type="button" id="prevBtn" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="insp-nav next" type="button" id="nextBtn" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    <p class="drag-hint">Drag to turn</p>
+  </div>
+  <button class="insp-close" type="button" id="closeBtn" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div class="callout">
+    <p class="c-count" id="cCount"></p>
+    <p class="c-tamil"><span id="cTa"></span><span id="cTl"></span></p>
+    <h3 class="c-title" id="cTitle"></h3>
+    <p class="c-body" id="cBody"></p>
+    <div class="c-actions" id="cActions"></div>
+  </div>
+</div>
+
+<canvas id="petals" aria-hidden="true"></canvas>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

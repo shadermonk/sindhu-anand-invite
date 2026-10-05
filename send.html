@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Send Invitations</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Manrope:wght@500;700&display=swap">
+<style>
+  :root { --night:#2a0d12; --maroon:#7e2a34; --paper:#fbfaf4; --ink:#2b2a27; --ink-soft:#5c5a56; --gold:#d1b994; --gold-deep:#b48a4a; --wa:#1f8f4e; color-scheme: light; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--night); font: 500 15px/1.5 "Manrope", system-ui, sans-serif; color: var(--ink); }
+  main { max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { margin: 0; font-family: "Dancing Script", cursive; color: #fbe2ad; font-size: 40px; text-align: center; }
+  .intro { margin: 0; color: var(--gold); text-align: center; font-size: 14px; }
+  .panel { background: var(--paper); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+  label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
+  textarea, input { width: 100%; font: 500 15px/1.5 "Manrope", sans-serif; border: 1px solid #e3dccd; border-radius: 10px; padding: 10px 12px; background: #fff; color: var(--ink); }
+  textarea { min-height: 120px; resize: vertical; }
+  .hint { margin: 0; font-size: 12.5px; color: var(--ink-soft); }
+  code { background: #f1ebdc; padding: 1px 5px; border-radius: 4px; }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  li { background: var(--paper); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  li .who { flex: 1; min-width: 0; font-weight: 700; }
+  li .who small { display: block; font-weight: 500; color: var(--ink-soft); }
+  li.sent { opacity: .55; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 999px; padding: 9px 14px; font: 700 13px "Manrope", sans-serif; text-decoration: none; cursor: pointer; }
+  .wa { background: var(--wa); color: #fff; }
+  .copy { background: transparent; border: 1px solid var(--maroon); color: var(--maroon); }
+  .count { color: var(--gold); text-align: center; font-size: 13px; margin: 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Send invitations</h1>
+  <p class="intro">Each guest gets a personal link: their name appears on the envelope and in the RSVP form.</p>
+
+  <section class="panel">
+    <label for="guests">Guests — one per line: Name, phone</label>
+    <textarea id="guests" placeholder="Priya & family, 919876543210&#10;Ravi Uncle, +91 98400 12345&#10;Meena"></textarea>
+    <p class="hint">Phone needs the country code (91 for India). Leave it out to pick the contact inside WhatsApp.</p>
+    <label for="msg">Message</label>
+    <textarea id="msg"></textarea>
+    <p class="hint"><code>{name}</code> and <code>{link}</code> are filled in for each guest.</p>
+    <label for="base">Invitation link</label>
+    <input id="base" type="url">
+  </section>
+
+  <p class="count" id="count"></p>
+  <ul id="list"></ul>
+</main>
+<script>
+  const $ = (s) => document.querySelector(s);
+  const DEFAULT_MSG = "Vanakkam {name}!\n\nWith great joy, we invite you to the wedding of Sindhu & Anand.\n\nReception: Sat, 14 Nov 2026, 7 PM\nWedding: Sun, 15 Nov 2026, 9:45 AM\nSDB Grand Palace, Selaiyur, Chennai\n\nOpen your invitation and RSVP here:\n{link}";
+  const load = (k, d) => { try { return localStorage.getItem(k) ?? d; } catch { return d; } };
+  const save = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+  const sent = new Set(JSON.parse(load("sent", "[]")));
+
+  $("#msg").value = load("msg", DEFAULT_MSG);
+  $("#guests").value = load("guests", "");
+  $("#base").value = load("base", new URL("./", location.href).href);
+
+  function render() {
+    save("msg", $("#msg").value); save("guests", $("#guests").value); save("base", $("#base").value);
+    const rows = $("#guests").value.split("\n").map((l) => l.trim()).filter(Boolean).map((l) => {
+      const i = l.lastIndexOf(",");
+      const maybePhone = i > -1 ? l.slice(i + 1).replace(/\D/g, "") : "";
+      return maybePhone.length >= 8 ? { name: l.slice(0, i).trim(), phone: maybePhone } : { name: l, phone: "" };
+    });
+    $("#count").textContent = rows.length ? `${rows.length} guest${rows.length > 1 ? "s" : ""} · ${rows.filter((r) => sent.has(r.name)).length} sent` : "";
+    const list = $("#list");
+    list.innerHTML = "";
+    for (const r of rows) {
+      const link = new URL($("#base").value || location.href);
+      link.searchParams.set("to", r.name);
+      const text = $("#msg").value.replaceAll("{name}", r.name).replaceAll("{link}", link.href);
+      const li = document.createElement("li");
+      if (sent.has(r.name)) li.className = "sent";
+      const who = document.createElement("div"); who.className = "who"; who.textContent = r.name;
+      const sm = document.createElement("small"); sm.textContent = r.phone ? "+" + r.phone : "choose contact in WhatsApp"; who.appendChild(sm);
+      const wa = document.createElement("a"); wa.className = "btn wa"; wa.target = "_blank"; wa.rel = "noopener";
+      wa.href = `https://wa.me/${r.phone}?text=${encodeURIComponent(text)}`; wa.textContent = sent.has(r.name) ? "Send again" : "Send on WhatsApp";
+      wa.onclick = () => { sent.add(r.name); save("sent", JSON.stringify([...sent])); setTimeout(render, 300); };
+      const cp = document.createElement("button"); cp.className = "btn copy"; cp.type = "button"; cp.textContent = "Copy link";
+      cp.onclick = async () => { try { await navigator.clipboard.writeText(link.href); cp.textContent = "Copied"; } catch { cp.textContent = link.href; } };
+      li.append(who, wa, cp);
+      list.appendChild(li);
+    }
+  }
+  ["#guests", "#msg", "#base"].forEach((s) => $(s).addEventListener("input", render));
+  render();
+</script>
+</body>
+</html>
