@@ -482,7 +482,7 @@
     pop.innerHTML = "";
     obj = buildObject(it);
     pop.appendChild(obj);
-    rot.x = -10; rot.y = -25; rot.vy = 3.2; rot.vx = 0;
+    rot.x = -3; rot.y = -6; rot.vy = 0; rot.vx = 0; // settle almost face-on so the art is easy to see
     pop.style.animation = "none"; void pop.offsetWidth; pop.style.animation = "";
   }
 
@@ -555,8 +555,8 @@
           rot.y += rot.vy; rot.x += rot.vx;
           rot.vy *= 0.95; rot.vx *= 0.9;
           if (Math.abs(rot.vy) < 0.15) {
-            const idleY = reduceMotion ? 0 : Math.sin(t / 1500) * 26;
-            const idleX = -8 + (reduceMotion ? 0 : Math.sin(t / 2300) * 6);
+            const idleY = reduceMotion ? 0 : Math.sin(t / 2600) * 5; // a gentle sway, just enough to catch the shimmer
+            const idleX = -2 + (reduceMotion ? 0 : Math.sin(t / 3400) * 1.5);
             rot.y = idleY + ((((rot.y - idleY + 180) % 360) + 360) % 360) - 180;
             rot.y += (idleY - rot.y) * 0.03;
             rot.x += (idleX - rot.x) * 0.04;

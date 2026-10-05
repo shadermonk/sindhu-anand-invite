@@ -508,9 +508,9 @@ body:not(.is-open) .after-open { display: none !important; }
 .insp-stage:active { cursor: grabbing; }
 .insp-glow { position: absolute; width: 70vmin; height: 70vmin; border-radius: 50%; background: radial-gradient(closest-side, rgba(233, 162, 59, .28), transparent); pointer-events: none; }
 .obj-pop { transform-style: preserve-3d; }
-.inspector.on .obj-pop { animation: pop .75s cubic-bezier(.2, 1.3, .3, 1) both; }
+.inspector.on .obj-pop { animation: pop .6s cubic-bezier(.2, .9, .3, 1) both; }
 @keyframes pop {
-  from { transform: translateZ(-500px) rotateY(-140deg) scale(.4); opacity: 0; }
+  from { transform: translateY(24px) rotateX(8deg) scale(.82); opacity: 0; }
   to { transform: none; opacity: 1; }
 }
 .obj { position: relative; transform-style: preserve-3d; }
@@ -522,7 +522,13 @@ body:not(.is-open) .after-open { display: none !important; }
 }
 .obj.tile .ly { border-radius: 14px; }
 .obj.tile .slab { background: #e9e1cf; }
-.obj.tile .slab.edge { background: #b9ab8e; filter: none; }
+.obj.tile .slab.edge { background: #a8843f; filter: none; } /* gilt edge */
+/* gold frame: a gilt border with a fine inner gold rule, like a framed print */
+.obj.tile .face {
+  border: 3px solid #c9a35f;
+  box-shadow: inset 0 0 0 5px var(--paper), inset 0 0 0 6px rgba(180, 138, 74, .85), 0 0 0 1px rgba(125, 91, 38, .5);
+  background-origin: padding-box; background-clip: padding-box; background-color: var(--paper);
+}
 .obj .shadow {
   position: absolute; left: 10%; right: 10%; bottom: -16%; height: 14%;
   background: radial-gradient(closest-side, rgba(0, 0, 0, .45), transparent);
