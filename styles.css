@@ -102,11 +102,11 @@ button { font: inherit; color: inherit; }
 /* A light sweep across the cover and a small "tap me" nudge every few seconds */
 .env-front::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(105deg, transparent 40%, rgba(251, 226, 173, .12) 47%, rgba(255, 244, 214, .24) 50%, rgba(251, 226, 173, .12) 53%, transparent 60%);
+  background: linear-gradient(105deg, transparent 38%, rgba(251, 226, 173, .04) 46%, rgba(255, 244, 214, .08) 50%, rgba(251, 226, 173, .04) 54%, transparent 62%);
   background-size: 260% 100%; background-repeat: no-repeat; background-position: 120% 0;
-  animation: sweep 6s ease-in-out 1s infinite;
+  animation: sweep 9s ease-in-out 1.5s infinite;
 }
-@keyframes sweep { 0% { background-position: 120% 0; } 30%, 100% { background-position: -20% 0; } }
+@keyframes sweep { 0% { background-position: 120% 0; } 40%, 100% { background-position: -20% 0; } }
 @keyframes nudge {
   0%, 70%, 100% { transform: none; }
   74% { transform: translateY(-4px) rotate(-1.1deg); }
@@ -120,7 +120,6 @@ button { font: inherit; color: inherit; }
 }
 @media (hover: hover) {
   .env:hover .env-front { animation-play-state: paused; }
-  .env:hover .env-front::after { animation-duration: 2.4s; }
 }
 .env.is-opening .env-front, .env.is-opening .env-front::after { animation: none; }
 .cover-names { position: relative; display: grid; place-items: center; transform: translateY(-2cqw); }
