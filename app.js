@@ -367,7 +367,6 @@
         tilt.x += (tilt.tx - tilt.x) * 0.07;
         tilt.y += (tilt.ty - tilt.y) * 0.07;
         card.style.transform = `rotateX(${tilt.x.toFixed(2)}deg) rotateY(${tilt.y.toFixed(2)}deg)`;
-        card.style.setProperty("--sheen", `${(50 - tilt.y * 5).toFixed(1)}%`);
       }
       requestAnimationFrame(frame);
     };
