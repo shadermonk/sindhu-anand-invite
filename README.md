@@ -4,7 +4,8 @@ Static site, no build step. Files:
 
 | File | What it is |
 |---|---|
-| `index.html`, `styles.css`, `app.js` | The invitation: envelope → card → 3D callouts → RSVP → visitor count |
+| `index.html`, `styles.css`, `app.js`, `petals.js` | The invitation: envelope → card → 3D callouts → couple photo → RSVP button → visitor count |
+| `rsvp.html`, `rsvp.js` | The RSVP form, opened from the RSVP button, with a close button back to the invitation |
 | `config.js` | The only file you need to edit (RSVP backend, host WhatsApp number, RSVP-by date) |
 | `send.html` | Host tool: paste guest names + phones, get one-tap "Send on WhatsApp" buttons with personal links |
 | `apps-script.gs` | Google Sheets backend for RSVPs + visitor count |
@@ -20,7 +21,9 @@ Then, in `index.html`, change the `og:image` line to the full URL so WhatsApp sh
 <meta property="og:image" content="https://YOUR-SITE/assets/og-cover.jpg">
 ```
 
-## 2. Collect RSVPs in a Google Sheet (5 minutes)
+## 2. Collect RSVPs in a Google Sheet (already connected)
+
+RSVPs go to the **Wedding RSVP** sheet (tabs **RSVPs** and **Stats**) through the "Wedding RSVP backend" Apps Script, deployed as a web app from shadermonk@gmail.com. Its `/exec` URL is in `config.js`. To set it up from scratch:
 
 1. Create a new Google Sheet → **Extensions → Apps Script**.
 2. Replace the code with the contents of `apps-script.gs` and save.
@@ -37,7 +40,9 @@ Open `https://YOUR-SITE/send.html`, paste one guest per line (`Priya & family, 9
 
 ## Notes
 
-- **Visitor count:** counted once per phone or browser. Without `sheetUrl` it uses the free counter at abacus.jasoncameron.dev (key `counterKey` in `config.js`).
+- **Visitor count:** counted once per phone or browser, kept by the Apps Script and shown in the sheet's Stats tab.
+- **Fonts:** `assets/fonts/runethia-amp.woff2` is Runethia (Sronstudio) subset to the "&" only. Make sure your Runethia licence covers web use.
+- **Photo:** `assets/couple.jpg` is the denoised, 1.6× upscaled photo shown when guests tap the names.
 - **Tilt:** the card follows the phone's tilt. iPhones ask for motion permission when the envelope is tapped; if a guest declines, the card sways gently instead.
 - **Preview locally:** `python3 -m http.server 8765` in this folder, then open http://localhost:8765/?to=Priya
 - Add `?open` to a link to skip the envelope animation.

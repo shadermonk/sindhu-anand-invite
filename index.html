@@ -17,8 +17,9 @@
 <link rel="icon" href="assets/ganesha.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600&family=Manrope:wght@500;600;700;800&family=Pinyon+Script&family=Hind+Madurai:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600&family=Manrope:wght@500;600;700;800&family=Hind+Madurai:wght@600&display=swap">
 <link rel="preload" as="image" href="assets/bg.png">
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/runethia-amp.woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -62,10 +63,11 @@
             <img src="assets/ganesha.png" alt="">
           </button>
           <p class="phrase">We warmly invite you to celebrate<br>the wedding of</p>
-          <button class="plain names" type="button" id="names" aria-label="Sindhu and Anand">
+          <button class="plain names" type="button" id="names" aria-label="Sindhu and Anand — see their photo">
             <span class="amp" aria-hidden="true">&amp;</span>
             <span class="n">Sindhu</span>
             <span class="n">Anand</span>
+            <i class="tap-chip"></i>
           </button>
           <p class="note">Join us for this special beginning,<br>together with our families!</p>
           <svg class="accent" viewBox="0 0 480 16" fill="none" aria-hidden="true">
@@ -103,62 +105,11 @@
     Tap the flowers, gifts &amp; details to see what they mean
   </p>
 
-  <!-- RSVP -->
-  <section class="rsvp after-open" id="rsvp" aria-labelledby="rsvpTitle">
-    <div class="rsvp-inner">
-      <header>
-        <p class="eyebrow">RSVP · kindly reply by <span id="rsvpBy"></span></p>
-        <h2 id="rsvpTitle">Will you join us?</h2>
-        <p class="sub">Let us know if you can make it, so we can keep a seat and a banana leaf ready for you.</p>
-      </header>
-
-      <form id="rsvpForm" novalidate>
-        <div class="field">
-          <label for="f-name">Your name</label>
-          <input id="f-name" name="name" type="text" autocomplete="name" required placeholder="e.g. Priya & family">
-        </div>
-        <div class="field">
-          <span class="flabel" id="attLabel">Will you attend?</span>
-          <div class="choice" role="radiogroup" aria-labelledby="attLabel">
-            <label><input type="radio" name="attending" id="f-yes" value="Yes" checked>Joyfully accept<small>We'll be there</small></label>
-            <label><input type="radio" name="attending" id="f-no" value="No">Regretfully decline<small>Sending blessings</small></label>
-          </div>
-        </div>
-        <div class="when-yes">
-          <div class="field">
-            <span class="flabel">Which events?</span>
-            <div class="events">
-              <label><input type="checkbox" id="f-reception" name="reception" checked>Reception · 14 Nov</label>
-              <label><input type="checkbox" id="f-wedding" name="wedding" checked>Wedding · 15 Nov</label>
-            </div>
-          </div>
-          <div class="field">
-            <span class="flabel" id="guestsLabel">Number of guests <span class="opt">(including you)</span></span>
-            <div class="stepper" aria-labelledby="guestsLabel">
-              <button type="button" id="g-minus" aria-label="One fewer guest">−</button>
-              <output id="f-guests" aria-live="polite">1</output>
-              <button type="button" id="g-plus" aria-label="One more guest">+</button>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label for="f-phone">WhatsApp number <span class="opt">(optional)</span></label>
-          <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+91 98765 43210">
-        </div>
-        <div class="field">
-          <label for="f-msg">Wishes for the couple <span class="opt">(optional)</span></label>
-          <textarea id="f-msg" name="message" placeholder="A blessing, a memory, or just hello"></textarea>
-        </div>
-        <button class="submit" type="submit" id="submitBtn">Send RSVP</button>
-        <p class="form-msg" id="formMsg" role="alert"></p>
-      </form>
-
-      <div class="thanks" id="thanks" hidden>
-        <h3 id="thanksTitle">Thank you!</h3>
-        <p id="thanksText"></p>
-        <button class="linkish" type="button" id="editRsvp">Change my response</button>
-      </div>
-    </div>
+  <!-- RSVP: opens the reply card on its own page -->
+  <section class="rsvp-cta after-open" aria-label="RSVP">
+    <p class="eyebrow">Kindly reply by <span id="rsvpBy"></span></p>
+    <a class="submit rsvp-btn" id="rsvpBtn" href="rsvp.html">RSVP</a>
+    <p class="rsvp-status" id="rsvpStatus" hidden></p>
   </section>
 
   <footer class="foot after-open">
@@ -186,9 +137,19 @@
   </div>
 </div>
 
+<!-- Couple photo -->
+<div class="photo-box" id="photoBox" role="dialog" aria-modal="true" aria-label="Photo of Sindhu and Anand" hidden>
+  <figure class="print" id="print">
+    <img src="assets/couple.jpg" alt="Sindhu and Anand on stage, garlanded, in front of their S &amp; A monogram" width="2048" height="1363" decoding="async">
+    <figcaption><span class="pc-names">Sindhu <span class="amp-r">&amp;</span> Anand</span></figcaption>
+  </figure>
+  <button class="insp-close" type="button" id="photoClose" aria-label="Close photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+</div>
+
 <canvas id="petals" aria-hidden="true"></canvas>
 
 <script src="config.js"></script>
+<script src="petals.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

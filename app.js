@@ -151,14 +151,15 @@
     } else if (D) listenGyro();
   }
 
-  async function openInvite() {
+  async function openInvite(instant = false) {
     if (opened) return;
     opened = true;
     askMotionPermission();
+    try { sessionStorage.setItem("opened", "1"); } catch { /* storage blocked */ }
     $("#tapHint").style.visibility = "hidden";
     env.style.animation = "none";
 
-    if (!reduceMotion) {
+    if (!reduceMotion && !instant) {
       const inner = $("#envInner");
       await inner.animate([{ transform: "rotateY(0)" }, { transform: "rotateY(90deg)" }], { duration: 320, easing: "ease-in", fill: "forwards" }).finished;
       env.classList.add("show-back");
@@ -177,7 +178,7 @@
     window.scrollTo(0, 0);
     const wrap = $("#cardWrap");
     const to = wrap.getBoundingClientRect();
-    if (!reduceMotion && from.width) {
+    if (!reduceMotion && !instant && from.width) {
       wrap.animate([
         { transformOrigin: "0 0", transform: `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})` },
         { transformOrigin: "0 0", transform: "none" },
@@ -188,15 +189,23 @@
     }
     startTilt();
   }
-  env.addEventListener("click", openInvite);
-  if (params.has("open")) openInvite();
+  env.addEventListener("click", () => openInvite());
+  let seenEnvelope = false;
+  try { seenEnvelope = sessionStorage.getItem("opened") === "1"; } catch { /* storage blocked */ }
+  if (params.has("open") || seenEnvelope) { // coming back from the RSVP page: skip the envelope
+    openInvite(true);
+    addEventListener("pointerdown", askMotionPermission, { once: true });
+  }
 
   // ───────── Card tilt: gyroscope on phones, pointer on desktop, gentle sway otherwise ─────────
   const card = $("#card");
   const tilt = { x: 0, y: 0, tx: 0, ty: 0, last: 0, running: false, paused: false };
   let gyroBase = null;
 
+  let gyroOn = false;
   function listenGyro() {
+    if (gyroOn) return;
+    gyroOn = true;
     window.addEventListener("deviceorientation", (e) => {
       if (e.beta == null || e.gamma == null) return;
       if (!gyroBase) gyroBase = { b: e.beta, g: e.gamma };
@@ -440,133 +449,60 @@
     requestAnimationFrame(frame);
   }
 
-  // ───────── Petals (marigold, jasmine, rose) ─────────
-  const petals = (() => {
-    const c = $("#petals"), ctx = c.getContext("2d");
-    const colors = ["#e9a23b", "#f2b84b", "#d9822b", "#fffaf0", "#fff4dc", "#e8a0a8"];
-    let ps = [], raf = 0, dpr = 1;
-    const size = () => { dpr = Math.min(2, devicePixelRatio || 1); c.width = innerWidth * dpr; c.height = innerHeight * dpr; };
-    addEventListener("resize", size); size();
-    function burst(n = 50) {
-      if (reduceMotion) return;
-      for (let i = 0; i < n; i++) ps.push({
-        x: Math.random() * innerWidth, y: -20 - Math.random() * innerHeight * 0.6,
-        r: 4 + Math.random() * 5, vy: 1 + Math.random() * 1.6, sway: Math.random() * 6.28, rot: Math.random() * 6.28,
-        vr: (Math.random() - 0.5) * 0.08, c: colors[(Math.random() * colors.length) | 0],
-      });
-      if (!raf) raf = requestAnimationFrame(tick);
-    }
-    function tick() {
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, innerWidth, innerHeight);
-      ps = ps.filter((p) => p.y < innerHeight + 30);
-      for (const p of ps) {
-        p.sway += 0.03; p.y += p.vy; p.x += Math.sin(p.sway) * 0.9; p.rot += p.vr;
-        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.scale(1, Math.abs(Math.cos(p.sway * 1.3)) * 0.7 + 0.3);
-        ctx.fillStyle = p.c; ctx.globalAlpha = 0.92;
-        ctx.beginPath(); ctx.ellipse(0, 0, p.r, p.r * 0.55, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.restore();
-      }
-      raf = ps.length ? requestAnimationFrame(tick) : 0;
-      if (!raf) ctx.clearRect(0, 0, innerWidth, innerHeight);
-    }
-    return { burst };
-  })();
-  $("#names").addEventListener("click", () => petals.burst(45));
+  const petals = window.Petals;
 
-  // ───────── RSVP ─────────
-  const form = $("#rsvpForm");
-  const guestsOut = $("#f-guests");
-  let guests = 1;
-  const setGuests = (n) => {
-    guests = clamp(n, 1, 10);
-    guestsOut.textContent = guests;
-    $("#g-minus").disabled = guests <= 1;
-    $("#g-plus").disabled = guests >= 10;
-  };
-  $("#g-minus").onclick = () => setGuests(guests - 1);
-  $("#g-plus").onclick = () => setGuests(guests + 1);
-  setGuests(1);
-  $("#rsvpBy").textContent = cfg.rsvpBy || "1st November 2026";
-  if (invitee) $("#f-name").value = invitee;
-  const syncAttending = () => form.classList.toggle("declining", $("#f-no").checked);
-  form.addEventListener("change", syncAttending);
-
-  function showThanks(d) {
-    const first = d.name.split(/[\s&,]/)[0] || d.name;
-    $("#thanksTitle").textContent = d.attending === "Yes" ? `Thank you, ${first}!` : `Thank you, ${first}`;
-    if (d.attending === "Yes") {
-      const ev = [d.reception === "Yes" && "the reception", d.wedding === "Yes" && "the wedding"].filter(Boolean).join(" and ");
-      $("#thanksText").textContent = `We've saved ${d.guests} ${d.guests === "1" ? "seat" : "seats"} for ${ev}. We can't wait to celebrate with you.`;
-    } else {
-      $("#thanksText").textContent = "We'll miss you there, and we're grateful for your blessings.";
-    }
-    form.hidden = true;
-    $("#thanks").hidden = false;
+  // ───────── Couple photo (tap the names) ─────────
+  const photoBox = $("#photoBox");
+  const print = $("#print");
+  let photoFocus = null;
+  function openPhoto() {
+    photoFocus = document.activeElement;
+    photoBox.hidden = false;
+    document.documentElement.style.overflow = "hidden";
+    tilt.paused = true;
+    requestAnimationFrame(() => photoBox.classList.add("on"));
+    $("#photoClose").focus({ preventScroll: true });
+    petals.burst(40);
   }
-  const saved = store.get("rsvp");
-  if (saved && saved.name) showThanks(saved);
-  $("#editRsvp").onclick = () => {
-    const d = store.get("rsvp") || {};
-    $("#f-name").value = d.name || "";
-    $("#f-phone").value = d.phone || "";
-    $("#f-msg").value = d.message || "";
-    (d.attending === "No" ? $("#f-no") : $("#f-yes")).checked = true;
-    $("#f-reception").checked = d.reception !== "No";
-    $("#f-wedding").checked = d.wedding !== "No";
-    setGuests(Number(d.guests) || 1);
-    syncAttending();
-    $("#thanks").hidden = true;
-    form.hidden = false;
-    $("#f-name").focus();
-  };
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const msg = $("#formMsg");
-    msg.textContent = "";
-    const name = $("#f-name").value.trim();
-    const yes = $("#f-yes").checked;
-    if (!name) { msg.textContent = "Please add your name so we know who's coming."; $("#f-name").focus(); return; }
-    if (yes && !$("#f-reception").checked && !$("#f-wedding").checked) { msg.textContent = "Pick at least one event, or choose Regretfully decline."; return; }
-    const d = {
-      name, attending: yes ? "Yes" : "No",
-      reception: yes && $("#f-reception").checked ? "Yes" : "No",
-      wedding: yes && $("#f-wedding").checked ? "Yes" : "No",
-      guests: yes ? String(guests) : "0",
-      phone: $("#f-phone").value.trim(),
-      message: $("#f-msg").value.trim(),
-      invitee,
-      updated: store.get("rsvp") ? "Yes" : "No",
-    };
-    const btn = $("#submitBtn");
-    btn.disabled = true; btn.textContent = "Sending…";
-    try {
-      if (cfg.sheetUrl) {
-        await fetch(cfg.sheetUrl, { method: "POST", mode: "no-cors", body: new URLSearchParams(d) });
-      } else if (cfg.hostWhatsApp) {
-        const lines = [`RSVP for Sindhu & Anand's wedding`, `Name: ${d.name}`, `Attending: ${d.attending}`];
-        if (yes) lines.push(`Events: ${[d.reception === "Yes" && "Reception", d.wedding === "Yes" && "Wedding"].filter(Boolean).join(", ")}`, `Guests: ${d.guests}`);
-        if (d.message) lines.push(`Wishes: ${d.message}`);
-        window.open(`https://wa.me/${cfg.hostWhatsApp.replace(/\D/g, "")}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
-      } else {
-        throw new Error("not-configured");
-      }
-      store.set("rsvp", d);
-      showThanks(d);
-      if (yes) petals.burst(90);
-    } catch (err) {
-      msg.textContent = err.message === "not-configured"
-        ? "RSVP isn't connected yet. Please reply to the family on WhatsApp for now."
-        : "Couldn't send your RSVP. Check your connection and try again.";
-    } finally {
-      btn.disabled = false; btn.textContent = "Send RSVP";
-    }
+  function closePhoto() {
+    photoBox.classList.remove("on");
+    tilt.paused = false;
+    document.documentElement.style.overflow = "";
+    setTimeout(() => { photoBox.hidden = true; print.style.transform = ""; }, 350);
+    if (photoFocus) photoFocus.focus({ preventScroll: true });
+  }
+  $("#names").addEventListener("click", openPhoto);
+  $("#photoClose").onclick = closePhoto;
+  photoBox.addEventListener("click", (e) => { if (e.target === photoBox) closePhoto(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !photoBox.hidden) closePhoto(); });
+  // the print leans toward the pointer / finger
+  photoBox.addEventListener("pointermove", (e) => {
+    if (reduceMotion) return;
+    const r = print.getBoundingClientRect();
+    const rx = clamp(((e.clientY - (r.top + r.height / 2)) / r.height) * -10, -8, 8);
+    const ry = clamp(((e.clientX - (r.left + r.width / 2)) / r.width) * 12, -10, 10);
+    print.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
   });
+  photoBox.addEventListener("pointerleave", () => { print.style.transform = ""; });
+
+  // ───────── RSVP button (the form lives on rsvp.html) ─────────
+  $("#rsvpBy").textContent = cfg.rsvpBy || "1st November 2026";
+  const rsvpUrl = new URL("rsvp.html", location.href);
+  if (invitee) rsvpUrl.searchParams.set("to", invitee);
+  $("#rsvpBtn").href = rsvpUrl.pathname.split("/").pop() + rsvpUrl.search;
+  const answered = store.get("rsvp");
+  if (answered && answered.name) {
+    $("#rsvpBtn").textContent = "View or change your RSVP";
+    $("#rsvpStatus").textContent = answered.attending === "Yes"
+      ? `You've replied: attending, ${answered.guests} ${answered.guests === "1" ? "guest" : "guests"}. Thank you!`
+      : "You've replied: can't make it. Thank you for letting us know.";
+    $("#rsvpStatus").hidden = false;
+  }
 
   // ───────── Visitor count (one count per device) ─────────
   (async () => {
-    const seen = store.get("visited");
+    const seenKey = cfg.sheetUrl ? "visited-sheet" : "visited";
+    const seen = store.get(seenKey);
     const action = seen ? "get" : "hit";
     const url = cfg.sheetUrl
       ? `${cfg.sheetUrl}?action=${action}`
@@ -577,7 +513,7 @@
       const n = Number(j.value ?? j.count);
       if (n > 0) {
         $("#visits").textContent = `${n.toLocaleString("en-IN")} ${n === 1 ? "visitor" : "visitors"} so far`;
-        store.set("visited", true);
+        store.set(seenKey, true);
       }
     } catch { /* counter is optional */ }
   })();
