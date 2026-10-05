@@ -32,6 +32,7 @@
 
 * { box-sizing: border-box; }
 html { scrollbar-gutter: stable; } /* same centre line with or without a scrollbar */
+html.locked { overflow: hidden; } /* cover and transitions never scroll */
 [hidden] { display: none !important; }
 html, body { min-height: 100%; }
 body {
@@ -94,7 +95,34 @@ button { font: inherit; color: inherit; }
     var(--maroon);
   container-type: inline-size;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
+  overflow: hidden;
+  transform-origin: 50% 100%;
+  animation: nudge 6s ease-in-out 2.5s infinite, glow 6s ease-in-out 2.5s infinite;
 }
+/* A light sweep across the cover and a small "tap me" nudge every few seconds */
+.env-front::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(105deg, transparent 40%, rgba(251, 226, 173, .12) 47%, rgba(255, 244, 214, .24) 50%, rgba(251, 226, 173, .12) 53%, transparent 60%);
+  background-size: 260% 100%; background-repeat: no-repeat; background-position: 120% 0;
+  animation: sweep 6s ease-in-out 1s infinite;
+}
+@keyframes sweep { 0% { background-position: 120% 0; } 30%, 100% { background-position: -20% 0; } }
+@keyframes nudge {
+  0%, 70%, 100% { transform: none; }
+  74% { transform: translateY(-4px) rotate(-1.1deg); }
+  79% { transform: translateY(-4px) rotate(1deg); }
+  84% { transform: translateY(-2px) rotate(-.5deg); }
+  89% { transform: none; }
+}
+@keyframes glow {
+  0%, 66%, 100% { box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .6); }
+  80% { box-shadow: 0 34px 64px -20px rgba(0, 0, 0, .6), 0 0 46px rgba(233, 162, 59, .22); }
+}
+@media (hover: hover) {
+  .env:hover .env-front { animation-play-state: paused; }
+  .env:hover .env-front::after { animation-duration: 2.4s; }
+}
+.env.is-opening .env-front, .env.is-opening .env-front::after { animation: none; }
 .cover-names { position: relative; display: grid; place-items: center; transform: translateY(-2cqw); }
 .cover-names .amp {
   position: absolute; inset: 0; display: grid; place-items: center;
@@ -129,9 +157,9 @@ button { font: inherit; color: inherit; }
 }
 /* A tall clipping box (the envelope plus four envelope-heights above it): the card's lower half is
    cut off at the envelope's bottom edge. overflow clipping holds during 3D turns, unlike clip-path. */
-.mini-wrap { position: absolute; left: 0; right: 0; bottom: 0; height: 500%; overflow: hidden; z-index: 2; pointer-events: none; }
+.mini-wrap { position: absolute; left: 0; right: 0; bottom: 4%; height: 496%; overflow: hidden; z-index: 2; pointer-events: none; } /* ends a little above the envelope edge, safely behind the pocket */
 .mini {
-  position: absolute; left: 14%; width: 72%; top: 81.2%; /* 6% of the envelope, measured in the 500% box */
+  position: absolute; left: 14%; width: 72%; top: 81.85%; /* 6% down the envelope, measured in the clipping box */
   aspect-ratio: 576 / 760;
   background: var(--paper);
   box-shadow: 0 -6px 24px rgba(0, 0, 0, .25);

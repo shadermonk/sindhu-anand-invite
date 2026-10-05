@@ -180,9 +180,13 @@
   let openedInstantly = false;
   const fadeIns = () => document.querySelectorAll(".explore, .rsvp-cta, .foot, .to-cover");
 
+  const lockScroll = (on) => document.documentElement.classList.toggle("locked", on);
+
   async function openInvite(instant = false) {
     if (opened || busy) return;
     busy = true;
+    lockScroll(true);
+    env.classList.add("is-opening");
     opened = true;
     openedInstantly = instant || reduceMotion;
     askMotionPermission();
@@ -197,12 +201,15 @@
       fitMini();
       // the card stays hidden while the envelope turns: 3D rotation can defeat the clip
       // that tucks its lower half inside the envelope
+      // and while the flap is shut (its anti-aliased edges would show a hairline of the white card)
       $("#mini").style.visibility = "hidden";
       await keep(inner.animate([{ transform: "rotateY(-90deg)" }, { transform: "rotateY(0)" }], { duration: 380, easing: "ease-out", fill: "forwards" })).finished;
-      $("#mini").style.visibility = "";
       await wait(120);
       keep($("#seal").animate([{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(1.4)" }], { duration: 260, fill: "forwards" }));
-      await keep($("#flap").animate([{ transform: "rotateX(0)" }, { transform: "rotateX(180deg)" }], { duration: 620, easing: "cubic-bezier(.5,0,.3,1)", fill: "forwards" })).finished;
+      const flapOpen = keep($("#flap").animate([{ transform: "rotateX(0)" }, { transform: "rotateX(180deg)" }], { duration: 620, easing: "cubic-bezier(.5,0,.3,1)", fill: "forwards" }));
+      await wait(220);
+      $("#mini").style.visibility = "";
+      await flapOpen.finished;
       $("#flap").style.zIndex = 1;
       const plan = liftPlan();
       keep(env.animate([
@@ -235,6 +242,7 @@
     tilt.paused = false;
     startTilt();
     busy = false;
+    lockScroll(false);
   }
 
   // Back to the cover: the card shrinks into the envelope, the flap closes, the envelope turns over.
@@ -250,6 +258,7 @@
       window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
       await new Promise((r) => { const t0 = performance.now(); const tick = () => (scrollY < 2 || performance.now() - t0 > 900) ? r() : requestAnimationFrame(tick); tick(); });
     }
+    lockScroll(true);
 
     if (openedInstantly) {
       // No envelope state to rewind: put the envelope back in its closed, front-facing state.
@@ -285,8 +294,10 @@
       miniA.reverse(); dropA.reverse();
       await miniA.finished;
       $("#flap").style.zIndex = "";
-      $("#mini").style.visibility = "hidden"; // card is inside; hide it before the envelope turns
-      flapA.reverse(); await flapA.finished;
+      flapA.reverse();
+      await wait(430); // flap has covered the card
+      $("#mini").style.visibility = "hidden";
+      await flapA.finished;
       sealA.reverse(); await sealA.finished;
       flip2.reverse(); await flip2.finished;
       env.classList.remove("show-back");
@@ -300,6 +311,7 @@
 
   function resetEnvelope() {
     envAnims.splice(0).forEach((x) => x.cancel());
+    env.classList.remove("is-opening");
     $("#mini").style.visibility = "";
     env.classList.remove("show-back");
     $("#flap").style.zIndex = "";
