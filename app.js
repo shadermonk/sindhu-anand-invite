@@ -146,7 +146,7 @@
     const r = env.getBoundingClientRect();
     const mini = $("#mini");
     const gap = 10;
-    const lift = mini.offsetTop + mini.offsetHeight + gap;
+    const lift = (mini.getBoundingClientRect().top - r.top) + mini.offsetHeight + gap;
     const stack = mini.offsetHeight + gap + r.height;
     const s = Math.min(1, (innerHeight - 48) / stack);
     const top = Math.max(24, (innerHeight - stack * s) / 2);

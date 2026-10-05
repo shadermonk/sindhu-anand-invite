@@ -127,9 +127,11 @@ button { font: inherit; color: inherit; }
     repeating-linear-gradient(45deg, rgba(251, 226, 173, .06) 0 2px, transparent 2px 12px),
     var(--maroon-deep);
 }
-.mini-wrap { position: absolute; inset: 0; clip-path: inset(-400% 0 0 0); z-index: 2; }
+/* A tall clipping box (the envelope plus four envelope-heights above it): the card's lower half is
+   cut off at the envelope's bottom edge. overflow clipping holds during 3D turns, unlike clip-path. */
+.mini-wrap { position: absolute; left: 0; right: 0; bottom: 0; height: 500%; overflow: hidden; z-index: 2; pointer-events: none; }
 .mini {
-  position: absolute; left: 14%; width: 72%; top: 6%;
+  position: absolute; left: 14%; width: 72%; top: 81.2%; /* 6% of the envelope, measured in the 500% box */
   aspect-ratio: 576 / 760;
   background: var(--paper);
   box-shadow: 0 -6px 24px rgba(0, 0, 0, .25);
@@ -251,7 +253,7 @@ body:not(.is-open) .after-open { display: none !important; }
 .hs:focus-visible { background: radial-gradient(closest-side, rgba(251, 226, 173, .45), transparent); }
 .hs.flash { animation: flash .6s ease-out; }
 @keyframes flash { from { background: radial-gradient(closest-side, rgba(233, 162, 59, .55), transparent); } }
-.mini .hs::after, .mini .tap-chip { display: none; }
+.mini .hs::after { display: none; }
 
 .content {
   position: relative; z-index: 10;
@@ -289,7 +291,6 @@ body:not(.is-open) .after-open { display: none !important; }
   font-family: var(--f-amp); font-size: max(77px, calc(100 * var(--u))); color: var(--gold); opacity: .35;
   transition: transform .6s var(--ease-out), opacity .6s;
 }
-.names .tap-chip { top: 10%; right: calc(50% - 2.4em); }
 .names .n { position: relative; display: block; transition: transform .5s var(--ease-out); }
 .note { font-weight: 500; font-size: max(11px, calc(11.5 * var(--u))); line-height: 1.45; }
 .accent { width: min(100%, calc(480 * var(--u))); height: auto; display: block; }
@@ -301,22 +302,34 @@ body:not(.is-open) .after-open { display: none !important; }
   min-width: max(100px, calc(100 * var(--u)));
   padding: calc(8 * var(--u)) 4px;
   font-size: max(10.5px, calc(11 * var(--u))); text-transform: uppercase; line-height: 1.35; font-weight: 500; color: var(--ink-soft);
-  border-radius: 6px; transition: background .25s;
+  border-radius: 8px; transition: transform .35s var(--ease-out), background .25s;
 }
 .date b { color: var(--ink); font-weight: 700; }
 .vline { width: 1px; align-self: stretch; min-height: calc(48 * var(--u)); background: var(--gold); }
 .venue {
-  display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 6px; padding: 4px 6px; transition: background .25s;
+  display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 8px; padding: 4px 8px; transition: transform .35s var(--ease-out), background .25s;
   font-weight: 500; font-size: max(10.5px, calc(11 * var(--u))); text-transform: uppercase; color: var(--ink-soft); line-height: 1.3;
 }
 .venue .label { text-transform: none; color: var(--ink); }
 .venue b { font-weight: 700; color: var(--ink); font-size: max(11.5px, calc(12 * var(--u))); }
-.date:focus-visible, .venue:focus-visible { background: rgba(209, 185, 148, .2); }
-.tap-chip { /* tiny gold dot beside the tappable text blocks */
-  position: absolute; top: 4px; right: 2px; width: 6px; height: 6px; border-radius: 50%; background: var(--gold-deep);
-  animation: ping-ring 2.8s ease-out infinite;
-}
 .venue { position: relative; text-decoration: none; }
+
+/* Clickable text: a gold underline draws in, the block lifts, and the venue shows a map arrow */
+.date b, .venue b { position: relative; display: inline-block; }
+.date b::after, .venue b::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 1px;
+  background: var(--gold-deep); transform: scaleX(0); transform-origin: 0 50%;
+  transition: transform .4s var(--ease-out);
+}
+.venue .go {
+  position: absolute; left: 100%; top: -1px; margin-left: 4px; color: var(--gold-deep);
+  opacity: 0; transform: translate(-4px, 3px); transition: opacity .3s, transform .35s var(--ease-out);
+}
+.date:focus-visible, .venue:focus-visible { background: rgba(209, 185, 148, .16); transform: translateY(-2px); }
+.date:focus-visible b::after, .venue:focus-visible b::after { transform: scaleX(1); }
+.date:focus-visible .go, .venue:focus-visible .go { opacity: 1; transform: none; }
+.date:active, .venue:active { transform: scale(.96); background: rgba(209, 185, 148, .22); transition-duration: .12s; }
+.names:active .n { transform: scale(.97); transition-duration: .12s; }
 
 .explore {
   margin: -8px 0 0; font-size: 12px; color: var(--gold); opacity: .85; text-align: center; letter-spacing: .02em;
@@ -557,5 +570,7 @@ body:not(.is-open) .after-open { display: none !important; }
   .names:hover .n:first-of-type { transform: translateX(-4px); }
   .names:hover .n:last-of-type { transform: translateX(4px); }
   .names:hover .amp { transform: scale(1.08) rotate(-4deg); opacity: .55; }
-  .date:hover, .venue:hover { background: rgba(209, 185, 148, .2); }
+  .date:hover, .venue:hover { background: rgba(209, 185, 148, .16); transform: translateY(-2px); }
+  .date:hover b::after, .venue:hover b::after { transform: scaleX(1); }
+  .venue:hover .go { opacity: 1; transform: none; }
 }
