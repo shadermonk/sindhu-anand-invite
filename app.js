@@ -114,8 +114,8 @@
       if (cx < 220) b.dataset.align = "start"; else if (cx > 900) b.dataset.align = "end";
       b.style.left = `${((hx - L[0]) / L[2]) * 100}%`;
       b.style.top = `${((hy - L[1]) / L[3]) * 100}%`;
-      b.style.width = `max(40px, ${(hw / L[2]) * 100}%)`;
-      b.style.height = `max(40px, ${(hh / L[3]) * 100}%)`;
+      b.style.width = `max(48px, ${(hw / L[2]) * 100}%)`;
+      b.style.height = `max(48px, ${(hh / L[3]) * 100}%)`;
       b.style.setProperty("--delay", (delay = (delay + 0.37) % 2.8).toFixed(2) + "s");
       artLayers.querySelector(`[data-layer="${layerId}"]`).appendChild(b);
     }
@@ -171,10 +171,12 @@
   let opened = false;
 
   function askMotionPermission() {
-    const D = window.DeviceOrientationEvent;
-    if (D && typeof D.requestPermission === "function") {
-      D.requestPermission().then((s) => { if (s === "granted") listenGyro(); }).catch(() => {});
-    } else if (D) listenGyro();
+    try {
+      const D = window.DeviceOrientationEvent;
+      if (D && typeof D.requestPermission === "function") {
+        D.requestPermission().then((s) => { if (s === "granted") listenGyro(); }).catch(() => {});
+      } else if (D) listenGyro();
+    } catch { /* in-app browsers may refuse motion access */ }
   }
 
   // Wait for an animation step, but never longer than its length plus a margin: some mobile browsers
@@ -537,6 +539,63 @@
     t.classList.remove("flash"); void t.offsetWidth; t.classList.add("flash");
     openInspector(t.dataset.item);
   });
+  // ───────── Reliable taps ─────────
+  // WhatsApp / iOS in-app browsers mis-hit-test 3D-transformed layers, so taps are matched by
+  // position instead: generous padded areas for every illustration, and any tap on the cover opens it.
+  const HS_PAD = 18, HS_MIN = 56;
+  function hotspotRects() {
+    const wr = $("#cardWrap").getBoundingClientRect();
+    const cw = wr.width, ch = wr.height, k = cw / 576, px = (v) => v * S * k;
+    const out = [];
+    for (const it of ITEMS) for (const [lid, [hx, hy, hw, hh]] of it.hs || []) {
+      const lft = lid[1] === "l", top = lid[0] === "t";
+      const x0 = lft ? px(hx) : cw - px(BG.w - hx), x1 = lft ? px(hx + hw) : cw - px(BG.w - hx - hw);
+      const y0 = top ? px(hy) : ch - px(BG.h - hy), y1 = top ? px(hy + hh) : ch - px(BG.h - hy - hh);
+      const cx = wr.left + (x0 + x1) / 2, cy = wr.top + (y0 + y1) / 2;
+      const w = Math.max(x1 - x0 + 2 * HS_PAD, HS_MIN), h = Math.max(y1 - y0 + 2 * HS_PAD, HS_MIN);
+      out.push({ id: it.id, cx, cy, l: cx - w / 2, r: cx + w / 2, t: cy - h / 2, b: cy + h / 2 });
+    }
+    return out;
+  }
+  function tapAt(x, y) {
+    if (!opened || busy || !insp.hidden || !photoBox.hidden) return false;
+    const wr = $("#cardWrap").getBoundingClientRect();
+    if (x < wr.left - 8 || x > wr.right + 8 || y < wr.top - 8 || y > wr.bottom + 8) return false;
+    const c = [];
+    for (const el of document.querySelectorAll("#cardFace .ganesha, #names, #cardFace .date, #venueLink")) {
+      const r = el.getBoundingClientRect();
+      if (x >= r.left - 6 && x <= r.right + 6 && y >= r.top - 6 && y <= r.bottom + 6) c.push({ el, d: -1000 }); // text controls win
+    }
+    for (const h of hotspotRects()) if (x >= h.l && x <= h.r && y >= h.t && y <= h.b) c.push({ id: h.id, d: Math.hypot(x - h.cx, y - h.cy) });
+    if (!c.length) return false;
+    c.sort((p, q) => p.d - q.d);
+    if (c[0].el) c[0].el.click(); else openInspector(c[0].id);
+    return true;
+  }
+  let tStart = null, lastTouch = 0;
+  addEventListener("touchstart", (e) => {
+    const t = e.touches[0];
+    tStart = t && e.touches.length === 1 ? { x: t.clientX, y: t.clientY, at: Date.now() } : null;
+  }, { passive: true });
+  addEventListener("touchend", (e) => {
+    const t = e.changedTouches[0];
+    if (!tStart || !t || Date.now() - tStart.at > 600 || Math.hypot(t.clientX - tStart.x, t.clientY - tStart.y) > 10) return;
+    tStart = null;
+    try {
+      if (!opened || closing) { lastTouch = Date.now(); openInvite(); e.preventDefault(); return; }
+      if (tapAt(t.clientX, t.clientY)) { lastTouch = Date.now(); e.preventDefault(); }
+    } catch { /* never block the page */ }
+  }, { passive: false });
+  addEventListener("click", (e) => {
+    if (!e.isTrusted || Date.now() - lastTouch < 700) return;
+    try {
+      if (!opened || closing) { openInvite(); return; }
+      if (e.detail === 0) return; // keyboard: native handlers
+      if (e.target.closest && e.target.closest("[data-item], #names, #venueLink, a, button")) return;
+      tapAt(e.clientX, e.clientY);
+    } catch { /* never block the page */ }
+  }, true);
+
   $("#closeBtn").onclick = closeInspector;
   $("#prevBtn").onclick = () => step(-1);
   $("#nextBtn").onclick = () => step(1);
