@@ -380,6 +380,7 @@ body:not(.is-open) .after-open { display: none !important; }
 .rsvp-page .page { justify-content: center; }
 .rsvp { position: relative; }
 .rsvp-page .rsvp header { padding-top: 34px; }
+.rsvp-page .thanks { padding-top: 34px; }
 .rsvp-close {
   position: absolute; top: 18px; right: 18px; z-index: 2; width: 40px; height: 40px; border-radius: 50%;
   display: grid; place-items: center; color: var(--maroon); background: rgba(126, 42, 52, .08); text-decoration: none;

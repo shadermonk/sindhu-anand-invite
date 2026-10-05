@@ -47,6 +47,7 @@
       $("#thanksText").textContent = "We'll miss you there, and we're grateful for your blessings.";
     }
     form.hidden = true;
+    $("#rsvp header").hidden = true; // they've replied, so no need to ask again
     $("#thanks").hidden = false;
   }
   const saved = store.get("rsvp");
@@ -62,6 +63,7 @@
     setGuests(Number(d.guests) || 1);
     syncAttending();
     $("#thanks").hidden = true;
+    $("#rsvp header").hidden = false;
     form.hidden = false;
     $("#f-name").focus();
   };
