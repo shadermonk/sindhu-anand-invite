@@ -186,7 +186,10 @@
 
   const lockScroll = (on) => document.documentElement.classList.toggle("locked", on);
 
+  let pendingOpen = false;
+  let closing = false;
   async function openInvite(instant = false) {
+    if (closing) { pendingOpen = true; return; } // still closing: open again as soon as it's done
     if (opened || busy) return;
     busy = true;
     lockScroll(true);
@@ -194,8 +197,6 @@
     opened = true;
     openedInstantly = instant || reduceMotion;
     askMotionPermission();
-    try { sessionStorage.setItem("opened", "1"); } catch { /* storage blocked */ }
-    $("#tapHint").style.visibility = "hidden";
     env.style.animation = "none";
 
     if (!openedInstantly) {
@@ -255,15 +256,16 @@
     if (hdLoaded) return;
     hdLoaded = true;
     const load = () => ITEMS.forEach((it) => { if (it.hd) new Image().src = it.hd; });
-    (window.requestIdleCallback || setTimeout)(load, 1200);
+    setTimeout(() => (window.requestIdleCallback ? requestIdleCallback(load, { timeout: 3000 }) : load()), 1200);
   }
 
   // Back to the cover: the card shrinks into the envelope, the flap closes, the envelope turns over.
   async function closeInvite() {
     if (!opened || busy) return;
     busy = true;
+    closing = true;
+    pendingOpen = false;
     tilt.paused = true;
-    try { sessionStorage.removeItem("opened"); } catch { /* storage blocked */ }
     if (params.has("open")) { params.delete("open"); history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "")); }
 
     const wrap = $("#cardWrap");
@@ -272,7 +274,6 @@
       await new Promise((r) => { const t0 = performance.now(); const tick = () => (scrollY < 2 || performance.now() - t0 > 900) ? r() : requestAnimationFrame(tick); tick(); });
     }
     lockScroll(true);
-
     if (openedInstantly) {
       // No envelope state to rewind: put the envelope back in its closed, front-facing state.
       petals.clear?.();
@@ -319,7 +320,9 @@
     }
     opened = false;
     busy = false;
+    closing = false;
     env.focus({ preventScroll: true });
+    if (pendingOpen) { pendingOpen = false; openInvite(); }
   }
 
   function resetEnvelope() {
@@ -343,9 +346,7 @@
     else if (y < lastY - 6 || y < 60) btn.classList.remove("away");
     lastY = y;
   }, { passive: true });
-  let seenEnvelope = false;
-  try { seenEnvelope = sessionStorage.getItem("opened") === "1"; } catch { /* storage blocked */ }
-  if (params.has("open") || seenEnvelope) { // coming back from the RSVP page: skip the envelope
+  if (params.has("open")) { // coming back from the RSVP page: skip the envelope
     queueMicrotask(() => openInvite(true)); // after the rest of this script has set up tilt etc.
     addEventListener("pointerdown", askMotionPermission, { once: true });
   }
