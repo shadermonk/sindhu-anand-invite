@@ -42,7 +42,8 @@ Open `https://YOUR-SITE/send.html`, paste one guest per line (`Priya & family, 9
 
 - **Visitor count:** counted once per phone or browser, kept by the Apps Script and shown in the sheet's Stats tab.
 - **Fonts:** `assets/fonts/runethia-amp.woff2` is Runethia (Sronstudio) subset to the "&" only. Make sure your Runethia licence covers web use.
-- **Photo:** `assets/couple.jpg` is the denoised, 1.6× upscaled photo shown when guests tap the names.
+- **Photo:** `assets/couple.jpg` is the denoised, super-resolved (EDSR) photo shown when guests tap the names.
+- **Illustration close-ups:** `assets/hd/*.webp` are Real-ESRGAN (realesrgan-x4plus) upscales of each detail from the Figma artwork, whose original is only 1091×1442.
 - **Tilt:** the card follows the phone's tilt. iPhones ask for motion permission when the envelope is tapped; if a guest declines, the card sways gently instead.
 - **Preview locally:** `python3 -m http.server 8765` in this folder, then open http://localhost:8765/?to=Priya
 - Add `?open` to a link to skip the envelope animation.
