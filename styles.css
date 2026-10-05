@@ -31,6 +31,7 @@
 }
 
 * { box-sizing: border-box; }
+html { scrollbar-gutter: stable; } /* same centre line with or without a scrollbar */
 [hidden] { display: none !important; }
 html, body { min-height: 100%; }
 body {
@@ -176,6 +177,12 @@ button { font: inherit; color: inherit; }
 
 body.is-open .cover-stage { display: none; }
 body.is-open .page { padding-top: calc(24px + 52px); }
+/* During the open/close morph the envelope stays on screen, pinned exactly where it sits on the cover. */
+body.env-overlay .cover-stage {
+  display: flex; position: fixed; z-index: 0; pointer-events: none;
+  top: 24px; left: 12px; right: 12px; width: auto; height: calc(100svh - 44px);
+}
+body.env-overlay .card-wrap { position: relative; z-index: 1; }
 
 /* Back to the cover */
 .to-cover {

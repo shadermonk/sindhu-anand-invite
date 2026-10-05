@@ -129,7 +129,29 @@
   clone.setAttribute("inert", "");
   clone.setAttribute("aria-hidden", "true");
   miniScale.appendChild(clone);
-  const fitMini = () => { const m = $("#mini"); if (m.clientWidth) miniScale.style.transform = `scale(${m.clientWidth / 576})`; };
+  // The miniature is the real card laid out at the real card's width, then scaled down,
+  // so the two have exactly the same shape and the hand-off between them is seamless.
+  const fitMini = () => {
+    const m = $("#mini");
+    if (!m.clientWidth) return;
+    const w = Math.min(576, document.documentElement.clientWidth - 24);
+    miniScale.style.width = w + "px";
+    const k = m.clientWidth / w;
+    miniScale.style.transform = `scale(${k})`;
+    m.style.height = miniScale.offsetHeight * k + "px";
+  };
+  // Where the envelope goes while the card is out: the card clears the envelope completely
+  // and the pair is centred on screen (scaled down if they don't fit).
+  function liftPlan() {
+    const r = env.getBoundingClientRect();
+    const mini = $("#mini");
+    const gap = 10;
+    const lift = mini.offsetTop + mini.offsetHeight + gap;
+    const stack = mini.offsetHeight + gap + r.height;
+    const s = Math.min(1, (innerHeight - 48) / stack);
+    const top = Math.max(24, (innerHeight - stack * s) / 2);
+    return { dy: top + s * (mini.offsetHeight + gap) - r.top, s, lift };
+  }
 
   // ───────── Personalisation: ?to=Priya ─────────
   const params = new URLSearchParams(location.search);
@@ -173,13 +195,21 @@
       await keep(inner.animate([{ transform: "rotateY(0)" }, { transform: "rotateY(90deg)" }], { duration: 320, easing: "ease-in", fill: "forwards" })).finished;
       env.classList.add("show-back");
       fitMini();
+      // the card stays hidden while the envelope turns: 3D rotation can defeat the clip
+      // that tucks its lower half inside the envelope
+      $("#mini").style.visibility = "hidden";
       await keep(inner.animate([{ transform: "rotateY(-90deg)" }, { transform: "rotateY(0)" }], { duration: 380, easing: "ease-out", fill: "forwards" })).finished;
+      $("#mini").style.visibility = "";
       await wait(120);
       keep($("#seal").animate([{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(1.4)" }], { duration: 260, fill: "forwards" }));
       await keep($("#flap").animate([{ transform: "rotateX(0)" }, { transform: "rotateX(180deg)" }], { duration: 620, easing: "cubic-bezier(.5,0,.3,1)", fill: "forwards" })).finished;
       $("#flap").style.zIndex = 1;
-      keep(env.animate([{ transform: "translateY(0)" }, { transform: "translateY(22%)" }], { duration: 900, easing: "cubic-bezier(.3,.7,.2,1)", fill: "forwards" }));
-      await keep($("#mini").animate([{ transform: "translateY(0)" }, { transform: "translateY(-64%)" }], { duration: 900, easing: "cubic-bezier(.3,.7,.2,1)", fill: "forwards" })).finished;
+      const plan = liftPlan();
+      keep(env.animate([
+        { transformOrigin: "50% 0", transform: "none" },
+        { transformOrigin: "50% 0", transform: `translateY(${plan.dy}px) scale(${plan.s})` },
+      ], { duration: 1000, easing: "cubic-bezier(.45,.05,.2,1)", fill: "forwards" }));
+      await keep($("#mini").animate([{ transform: "translateY(0)" }, { transform: `translateY(${-plan.lift}px)` }], { duration: 1000, easing: "cubic-bezier(.45,.05,.2,1)", fill: "forwards" })).finished;
     }
 
     const from = $("#mini").getBoundingClientRect();
@@ -188,10 +218,16 @@
     const wrap = $("#cardWrap");
     const to = wrap.getBoundingClientRect();
     if (!openedInstantly && from.width) {
+      // the envelope stays on screen under the growing card and fades away
+      document.body.classList.add("env-overlay");
+      $("#mini").style.visibility = "hidden";
+      const stage = $(".cover-stage");
+      stage.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, easing: "ease-out", fill: "forwards" })
+        .finished.then(() => { document.body.classList.remove("env-overlay"); stage.getAnimations().forEach((x) => x.cancel()); $("#mini").style.visibility = ""; });
       wrap.animate([
-        { transformOrigin: "0 0", transform: `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})` },
+        { transformOrigin: "0 0", transform: `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width})` },
         { transformOrigin: "0 0", transform: "none" },
-      ], { duration: 800, easing: "cubic-bezier(.2,.8,.2,1)" });
+      ], { duration: 850, easing: "cubic-bezier(.2,.8,.2,1)" });
       fadeIns().forEach((el, i) =>
         el.animate([{ opacity: 0, transform: "translateY(16px)" }, { opacity: 1, transform: "none" }], { duration: 600, delay: 550 + i * 120, easing: "ease-out", fill: "backwards" }));
       setTimeout(() => petals.burst(70), 450);
@@ -223,19 +259,23 @@
       resetEnvelope();
       if (!reduceMotion) env.animate([{ opacity: 0, transform: "scale(.94)" }, { opacity: 1, transform: "none" }], { duration: 420, easing: "ease-out" });
     } else {
-      // 1. card shrinks back to where the miniature sits above the open envelope
+      // 1. the open envelope fades in underneath while the card shrinks onto the lifted miniature
       const to = wrap.getBoundingClientRect();
-      document.body.classList.remove("is-open");
+      document.body.classList.add("env-overlay");
       fitMini();
-      const mini = $("#mini").getBoundingClientRect();
-      document.body.classList.add("is-open");
+      const miniEl = $("#mini");
+      const mini = miniEl.getBoundingClientRect();
+      miniEl.style.visibility = "hidden";
       petals.clear?.();
+      const stage = $(".cover-stage");
+      stage.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, easing: "ease-out" });
       fadeIns().forEach((el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250, fill: "forwards" }));
       await wrap.animate([
         { transformOrigin: "0 0", transform: "none" },
-        { transformOrigin: "0 0", transform: `translate(${mini.left - to.left}px, ${mini.top - to.top}px) scale(${mini.width / to.width}, ${mini.height / to.height})` },
-      ], { duration: 650, easing: "cubic-bezier(.5,0,.2,1)", fill: "forwards" }).finished;
-      document.body.classList.remove("is-open");
+        { transformOrigin: "0 0", transform: `translate(${mini.left - to.left}px, ${mini.top - to.top}px) scale(${mini.width / to.width})` },
+      ], { duration: 700, easing: "cubic-bezier(.5,0,.2,1)", fill: "forwards" }).finished;
+      miniEl.style.visibility = "";
+      document.body.classList.remove("is-open", "env-overlay");
       card.style.transform = "";
       wrap.getAnimations().forEach((x) => x.cancel());
       fadeIns().forEach((el) => el.getAnimations().forEach((x) => x.cancel()));
@@ -245,6 +285,7 @@
       miniA.reverse(); dropA.reverse();
       await miniA.finished;
       $("#flap").style.zIndex = "";
+      $("#mini").style.visibility = "hidden"; // card is inside; hide it before the envelope turns
       flapA.reverse(); await flapA.finished;
       sealA.reverse(); await sealA.finished;
       flip2.reverse(); await flip2.finished;
@@ -259,6 +300,7 @@
 
   function resetEnvelope() {
     envAnims.splice(0).forEach((x) => x.cancel());
+    $("#mini").style.visibility = "";
     env.classList.remove("show-back");
     $("#flap").style.zIndex = "";
     env.style.animation = "";
