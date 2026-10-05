@@ -211,17 +211,17 @@
     try {
     if (!openedInstantly) {
       const inner = $("#envInner");
-      await settle(keep(inner.animate([{ transform: "rotateY(0)" }, { transform: "rotateY(90deg)" }], { duration: 320, easing: "ease-in", fill: "forwards" })));
+      await settle(keep(inner.animate([{ transform: "scaleX(1) skewY(0deg)" }, { transform: "scaleX(0.02) skewY(-5deg)" }], { duration: 320, easing: "ease-in", fill: "forwards" })));
       env.classList.add("show-back");
       fitMini();
       // the card stays hidden while the envelope turns: 3D rotation can defeat the clip
       // that tucks its lower half inside the envelope
       // and while the flap is shut (its anti-aliased edges would show a hairline of the white card)
       $("#mini").style.visibility = "hidden";
-      await settle(keep(inner.animate([{ transform: "rotateY(-90deg)" }, { transform: "rotateY(0)" }], { duration: 380, easing: "ease-out", fill: "forwards" })));
+      await settle(keep(inner.animate([{ transform: "scaleX(0.02) skewY(5deg)" }, { transform: "scaleX(1) skewY(0deg)" }], { duration: 380, easing: "ease-out", fill: "forwards" })));
       await wait(120);
       keep($("#seal").animate([{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(1.4)" }], { duration: 260, fill: "forwards" }));
-      const flapOpen = keep($("#flap").animate([{ transform: "rotateX(0)" }, { transform: "rotateX(180deg)" }], { duration: 620, easing: "cubic-bezier(.5,0,.3,1)", fill: "forwards" }));
+      const flapOpen = keep($("#flap").animate([{ transform: "perspective(900px) rotateX(0deg)" }, { transform: "perspective(900px) rotateX(180deg)" }], { duration: 620, easing: "cubic-bezier(.5,0,.3,1)", fill: "forwards" }));
       await wait(220);
       $("#mini").style.visibility = "";
       await settle(flapOpen);

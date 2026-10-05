@@ -77,7 +77,6 @@ button { font: inherit; color: inherit; }
   width: var(--ew);
   aspect-ratio: 760 / 576;
   position: relative;
-  perspective: 1400px;
   cursor: pointer;
   border: 0;
   padding: 0;
@@ -88,7 +87,7 @@ button { font: inherit; color: inherit; }
 @supports (height: 100svh) {
   .env { --ew: min(560px, calc(100vw - 32px), calc((100svh - 110px) * 760 / 576)); }
 }
-.env-inner { position: absolute; inset: 0; transform-style: preserve-3d; }
+.env-inner { position: absolute; inset: 0; } /* flat 2D flip: real 3D made some Android browsers draw the lining out of step with the front */
 .env-face {
   position: absolute; inset: 0;
   border-radius: 4px;
@@ -139,11 +138,11 @@ button { font: inherit; color: inherit; }
   letter-spacing: .14em; text-transform: uppercase; color: var(--gold); opacity: .9;
 }
 
-.env-back { display: none; background: var(--maroon-deep); perspective: 900px; overflow: visible; }
+.env-back { display: none; background: var(--maroon-deep); overflow: visible; }
 .env.show-back .env-front { display: none; }
 .env.show-back .env-back { display: block; }
 .env-lining {
-  position: absolute; inset: 0; border-radius: 4px;
+  position: absolute; inset: 1px; border-radius: 3px;
   background:
     repeating-linear-gradient(45deg, rgba(251, 226, 173, .06) 0 2px, transparent 2px 12px),
     var(--maroon-deep);
