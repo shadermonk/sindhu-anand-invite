@@ -337,6 +337,22 @@ body:not(.is-open) .after-open { display: none !important; }
   font-size: max(34px, calc(44 * var(--u))); line-height: normal;
   gap: max(10px, calc(20 * var(--u)));
 }
+/* The names open the couple's photo. A soft highlight (like the dates) and a tiny camera mark show it is tappable. */
+.names::before {
+  content: ""; position: absolute; inset: -2px 26%; border-radius: 12px;
+  background: rgba(209, 185, 148, .16);
+  opacity: 0; transition: opacity .3s;
+}
+.names::after {
+  content: ""; position: absolute; right: calc(26% + 2px); bottom: 4px; width: 15px; height: 15px; opacity: .5;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b48a4a' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z'/%3E%3Ccircle cx='12' cy='13' r='3.5'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: opacity .3s, transform .35s var(--ease-out);
+}
+.names:focus-visible::before, .names:active::before { opacity: 1; }
+.names:focus-visible::after { opacity: 1; transform: scale(1.15); }
+/* No hover on phones: let the highlight breathe in and out now and then instead */
+@media (hover: none) { .names::before { animation: namehint 7s ease-in-out 3.5s infinite; } }
+@keyframes namehint { 0%, 68%, 100% { opacity: 0; } 80%, 88% { opacity: 1; } }
 .names .amp {
   position: absolute; inset: 0; display: grid; place-items: center;
   font-family: var(--f-amp); font-size: max(77px, calc(100 * var(--u))); color: var(--gold); opacity: .35;
@@ -637,6 +653,8 @@ body:not(.is-open) .after-open { display: none !important; }
   .art:has(.hs:hover) { transform: translateZ(calc(var(--z, 24px) + 18px)) scale(calc(var(--zs, .982) * 1.02)); }
   .art:has(.hs:hover) .art-img { opacity: .95; }
   .ganesha:hover { transform: translateZ(14px) scale(1.08); }
+  .names:hover::before { opacity: 1; }
+  .names:hover::after { opacity: 1; transform: scale(1.15); }
   .names:hover .n:first-of-type { transform: translateX(-4px); }
   .names:hover .n:last-of-type { transform: translateX(4px); }
   .names:hover .amp { transform: scale(1.08) rotate(-4deg); opacity: .55; }
